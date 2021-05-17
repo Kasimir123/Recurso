@@ -6,55 +6,38 @@ Recurso will not have any loops at all, everything will be functions and everyth
 
 ### General Code
 
-#### Required Main Function
-
-Recurso will require all code to be within the main function. This will look like the following:
-
-```
-main ()
-{
-
-}
-```
-
 #### Internal Functions
 
 All subsequent functions will need to be internal functions and must be either declared within main or within another function:
 
 ```
-main ()
+functionA ()
 {
-    functionA ()
-    {
 
-    }
 }
 ```
 
 ```
-main ()
+functionA ()
 {
-    functionA ()
+    functionC ()
     {
-        functionC ()
-        {
-            functionE ()
-            {
-
-            }
-        }
-
-        functionD ()
+        functionE ()
         {
 
         }
-
     }
 
-    functionB ()
+    functionD ()
     {
 
     }
+
+}
+
+functionB ()
+{
+
 }
 ```
 
@@ -90,11 +73,12 @@ Recurso will not allow any global variables, as this can be used to get around t
 ```
 #define PI 3.14
 
-main ()
-{
-    out(PI);
-}
+out(PI);
 ```
+
+#### Scope
+
+All variables will be scope only within their functions
 
 ### Data Types
 
@@ -102,9 +86,7 @@ I want recurso to support all of the normal datatypes that C does, so it support
 
 ### Conditionals
 
-Recurso will have If, Felse, and Else.
-
-If is your regular if statement, Felse is else if and must come after if or another felse, and else if your else statement that must come after if or felse. There can be nothing after else.
+Recurso will not have conditionals, rather it will have pattern matching on functions for exiting.
 
 ### Functions
 
@@ -121,4 +103,79 @@ Alternatively I want to create a function definition with only types needed, thi
 
 So rather than function(int param1) you can do function(int) and the first param would automatically be i1. 
 
+#### Pattern Matching
+
+Since there are no loops we have to use recursion for everything, cutting out conditions too makes this rather difficult so we will rely on pattern matching. Currently the grammar for this shall be notated as such:
+
+```
+Unmatched Function
+<return type> FunctionName (<param1 type> param1Name, <param2 type> param2Name)
+{
+
+}
+
+Function with one match - returns 0 if param1Name is 1
+int FunctionName (int param1Name, <param2 type> param2Name)(1, param2Name; 0)
+{
+
+}
+
+Function with multiple matches - returns 0 if param1Name is 1 or returns 2 if param1Name is 1 and param2Name is 4
+int FunctionName (int param1Name, int param2Name)(1, param2Name; 0)(1, 4; 2)
+{
+
+}
+
+Seperating on multiple lines is also allowed
+int FunctionName (int param1Name, int param2Name)
+(1, param2Name; 0)
+(1, 4; 2)
+{
+
+}
+```
+
+Possibly make ordering matter, so it matches the first one it sees, for speed!!
+
 ## Intermediate Representation
+
+### Tree Text Representation
+
+In order to test we will make that the parser tree can print out its representation, this is done by noting a tree with a as the root and b and c as the children with:
+
+```
+  a
+ / \     =>    ( a b c )
+b   c
+
+  =
+ / \     =>    ( = x 2 )   =>  x = 2
+x   2
+
+
+  =
+ / \     =>    ( = x ( + 1 2 ) )    =>  x = 1 + 2
+x   +
+   / \ 
+  1   2
+```
+
+### Node Types:
+
+#### General Purpose Node
+
+Possibly will need a general purpose node in order to be used as a placeholder, this will then tell us what type of node it is and then a pointer to that node.
+
+#### Program Node
+
+This node will contain a list of other nodes. This will then contain all the logic of the program in the order it was written in.
+
+#### Function Node
+
+The function node will contain the function return type, name, parameters, and patterns. It will also contain a program node that will keep track of all of its functions and code.
+
+#### Expression Node
+
+The expression node will contain the root data, and then two children. These children can either be values, null, or another expression node.
+
+#### Potential Assignment Node
