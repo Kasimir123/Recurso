@@ -1,6 +1,14 @@
+typedef struct ProgramNode ProgramNode;
+
+typedef struct ParameterNode ParameterNode;
+
+typedef struct ExpressionNode ExpressionNode;
+
+typedef struct FunctionNode FunctionNode;
+
 
 // Program Node Struct
-typedef struct {
+struct ProgramNode {
 
     // type of node this is
     char nodeType;
@@ -8,10 +16,50 @@ typedef struct {
     // all of the nodes in the program
     void * * nodes;
 
-} ProgramNode;
+};
+
+// Parameter Node Struct
+struct ParameterNode {
+
+    // type of node this is
+    char nodeType;
+
+    // parameter type
+    char type;
+
+    // parameter name
+    char * name;
+
+    // length of name
+    int nameLen;
+
+    // next parameter
+    ParameterNode * next;
+
+};
+
+// Expression Node Struct
+struct ExpressionNode {
+
+    // type of node this is
+    char nodeType;
+
+    // root data
+    char * root;
+
+    // root data length
+    int rootLen;
+
+    // left node
+    ExpressionNode * left;
+
+    // right node
+    ExpressionNode * right;
+
+};
 
 // Function Node Struct
-typedef struct {
+struct FunctionNode {
 
     // type of node this is
     char nodeType;
@@ -38,44 +86,6 @@ typedef struct {
     // All inner program information
     ProgramNode * inner;
 
-} FunctionNode;
+};
 
-// Parameter Node Struct
-typedef struct {
-
-    // type of node this is
-    char nodeType;
-
-    // parameter type
-    char type;
-
-    // parameter name
-    char * name;
-
-    // length of name
-    int nameLen;
-
-    // next parameter
-    ParameterNode * next;
-
-} ParameterNode;
-
-// Expression Node Struct
-typedef struct {
-
-    // type of node this is
-    char nodeType;
-
-    // root data
-    char * root;
-
-    // root data length
-    int rootLen;
-
-    // left node
-    ExpressionNode left;
-
-    // right node
-    ExpressionNode right;
-
-} ExpressionNode;
+enum ExpressionState {Start, First, Root, Temp, RightRoot, End};
