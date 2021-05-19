@@ -12,3 +12,5 @@ unsigned char * readFile(char * filePath, int * size);
 
 // Print the specified number of chars
 void printfNum(unsigned char * data, int size);
+
+char checkExpressionCharacters(unsigned char * token);

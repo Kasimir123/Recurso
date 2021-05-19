@@ -1,27 +1,105 @@
 #include "parser.h"
 
-unsigned char * nextToken(unsigned char * data, int * size, int * currentChar)
+char hasNextToken(unsigned char * statement, int size)
+{
+    unsigned char * found = (unsigned char *)strchr(statement, ' ');
+
+    if (!found || (int)(found - statement) > size) found = (unsigned char *)strchr(statement, ';');
+
+    int space = (int)(found - statement);
+
+    return (space <= size) ? 0 : 1;
+}
+
+unsigned char * nextToken(unsigned char ** statement, int * size)
+{
+    unsigned char * found = (unsigned char *)strchr(*statement, ' ');
+
+    if (!found || (int)(found - *statement) > * size) found = (unsigned char *)strchr(*statement, ';');
+
+    int space = (int)(found - *statement);
+
+    unsigned char * token = (unsigned char *)malloc(space + 1);
+
+    memcpy(token, *statement, space);
+
+    *statement += space + 1;
+
+    *size -= space + 1;
+
+    token[space] = '\x0';
+
+    return token;
+}
+
+ExpressionNode * createEndNode(unsigned char * token)
+{
+    ExpressionNode * node = (ExpressionNode *)malloc(sizeof(ExpressionNode));
+
+    node->root = token;
+    node->left = NULL;
+    node->right = NULL;
+
+    return node;
+}
+
+ExpressionNode * nextExpression(unsigned char * data, int size)
 {
 
-} 
+    unsigned char * statement = data;
 
-ExpressionNode nextExpression(unsigned char * data, int * size, int * currentChar, enum ExpressionState state)
-{
-    switch (state)
+    int statementSize = size;
+
+    enum ExpressionState state = Start;
+
+    unsigned char * token;
+
+    ExpressionNode * node = (ExpressionNode *)malloc(sizeof(ExpressionNode));
+
+    ExpressionNode * cur = node;
+
+    while (state != End)
     {
-        case Start:
-            break;
-        case First:
-            break;
-        case Root:
-            break;
-        case Temp:
-            break;
-        case RightRoot:
-            break;
-        case End:
-            break;
+        switch (state)
+        {
+            case Start:
+                if (!size)
+                {
+                    cur->root = "";
+                    cur->left = NULL;
+                    cur->right = NULL;
+                    state = End;
+                }
+                else 
+                {
+                    cur->left = createEndNode(nextToken(&statement, &size));
+                    state = First;
+                }
+                break;
+            case First:
+                cur->root = nextToken(&statement, &size);
+                state = Root;
+                break;
+            case Root:
+                token = nextToken(&statement, &size);
+                if (!hasNextToken(statement, size))
+                {
+                    cur->right = (ExpressionNode *)malloc(sizeof(ExpressionNode));
+                    cur = cur->right;
+                    cur->root = nextToken(&statement, &size);
+                    cur->left = createEndNode(token);
+                }
+                else
+                {
+                    cur->right = createEndNode(token);
+                    state = End;
+                }
+                break;
+        }
     }
+
+    return node;
+    
 }
 
 // Gets the next statement
@@ -71,6 +149,14 @@ int main(int argc, char * argv[])
                 printf("%d => ", statementSize);
 
                 printfNum(curPos, statementSize);
+
+                ExpressionNode * node = nextExpression(curPos, statementSize);
+
+                printExpressionNode(node);
+
+                printf("\n");
+
+                //free(node);
 
                 // increase pointer by statement size + 1 (semicolon)
                 curPos += statementSize + 1;

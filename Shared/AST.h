@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 typedef struct ProgramNode ProgramNode;
 
 typedef struct ParameterNode ParameterNode;
@@ -88,4 +90,6 @@ struct FunctionNode {
 
 };
 
-enum ExpressionState {Start, First, Root, Temp, RightRoot, End};
+enum ExpressionState {Start, First, Root, End};
+
+void printExpressionNode(ExpressionNode * node);

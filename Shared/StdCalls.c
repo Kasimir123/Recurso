@@ -57,3 +57,9 @@ void printfNum(unsigned char * data, int size)
     // Free the space
     free(toPrint);
 }
+
+char checkExpressionCharacters(unsigned char * token)
+{
+    if (token[0] >= 42 && token[0] <= 47) return 0;
+    else return 1;
+}
