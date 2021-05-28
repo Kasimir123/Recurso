@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+#define EXPRESSIONNODE "e";
+
 typedef struct ProgramNode ProgramNode;
 
 typedef struct ParameterNode ParameterNode;
