@@ -16,6 +16,37 @@ char hasNextToken(unsigned char * statement, int size)
     return (space <= size && space > 0) ? 0 : 1;
 }
 
+unsigned char * previewNextToken(unsigned char * statement, int size)
+{
+    // Checks for space seperated tokens
+    unsigned char * found = (unsigned char *)strchr(statement, ' ');
+
+    // if no space seperated, look for the semicolon
+    if (!found || (int)(found - statement) > size) found = (unsigned char *)strchr(statement, ';');
+
+    // get the space for the token
+    int space = (int)(found - statement);
+
+    // malloc space for the token
+    unsigned char * token = (unsigned char *)malloc(space + 1);
+
+    // copy the token from the statement
+    memcpy(token, statement, space);
+
+    // end the token string
+    token[space] = '\x0';
+
+    // return the token
+    return token;
+}
+
+char isTokenVariable(unsigned char * token)
+{
+
+}
+
+
+
 // Gets the next token in the system
 unsigned char * nextToken(unsigned char ** statement, int * size)
 {
@@ -45,6 +76,24 @@ unsigned char * nextToken(unsigned char ** statement, int * size)
 
     // return the token
     return token;
+}
+
+// Checks if the next token is a type
+void checkIfType(unsigned char ** statement, int * size)
+{
+    // Preview next token
+    unsigned char * token = previewNextToken(* statement, * size);
+
+    // if int
+    if (!strcmp(token, "int"))
+    {
+        // Go to next token
+        nextToken(statement, size);
+
+        // Adds the next token to the list
+        addElement(constants->ints, previewNextToken(* statement, * size));
+    }
+
 }
 
 // Creates an end node for an Expression Node
@@ -111,6 +160,10 @@ ExpressionNode * nextExpression(unsigned char * data, int size)
                 }
                 else 
                 {
+
+                    // Checks if we make a variables
+                    checkIfType(&statement, &size);
+
                     // Create the first node
                     cur->left = createEndNode(nextToken(&statement, &size));
 
@@ -183,12 +236,25 @@ int nextStatement(unsigned char ** data)
     return found ? (int)(found - *data) : -1;
 }
 
+// Initialize the constants
+void initializeConstants()
+{
+    // Malloc space for constants
+    constants = (Constants *)malloc(sizeof(Constants));
+
+    // Initialize the ints list
+    constants->ints = initList();
+}
+
 int main(int argc, char * argv[])
 {
 
     // If we have a file path and that path contains .rec
     if (argc == 2 && strstr(argv[1], ".rec"))
     {
+
+        // Initialize the constants
+        initializeConstants();
 
         // Filesize
         int fileSize;
@@ -235,5 +301,8 @@ int main(int argc, char * argv[])
 
         // free file data
         free(fileData);
+
+        for (int i = 0; i < constants->ints->count; i++) 
+            printf("%s\n", constants->ints->list[i]);
     }
 }
