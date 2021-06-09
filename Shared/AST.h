@@ -1,6 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-#define EXPRESSIONNODE "e";
+#define EXPRESSIONNODE 'e'
 
 typedef struct ProgramNode ProgramNode;
 
@@ -16,6 +17,10 @@ struct ProgramNode {
 
     // type of node this is
     char nodeType;
+
+    int capacity;
+
+    int count;
 
     // all of the nodes in the program
     void * * nodes;
@@ -95,3 +100,9 @@ struct FunctionNode {
 enum ExpressionState {Start, First, Root, End};
 
 void printExpressionNode(ExpressionNode * node);
+
+ProgramNode * initProgramNode();
+
+void addElementToProgramNode(ProgramNode * programNode, void * node);
+
+void freeProgramNode(ProgramNode * node);

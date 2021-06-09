@@ -50,3 +50,17 @@ char containsElement(List * list, char * element)
         if (!strcmp(list->list[i], element)) return 0;
     return 1;
 }
+
+// Free the list
+void freeList(List * list)
+{
+    // free all strings in list
+    for (int i = 0; i < list->capacity; i++)
+        free(list->list[i]);
+
+    // free string list
+    free(list->list);
+
+    // free actual list
+    free(list);
+}

@@ -88,11 +88,14 @@ void checkIfType(unsigned char ** statement, int * size)
     if (!strcmp(token, "int"))
     {
         // Go to next token
-        nextToken(statement, size);
+        free(nextToken(statement, size));
 
         // Adds the next token to the list
         addElement(constants->ints, previewNextToken(* statement, * size));
     }
+
+    // free previewed token
+    free(token);
 
 }
 
@@ -110,6 +113,9 @@ ExpressionNode * createEndNode(unsigned char * token)
 
     // set right to null
     node->right = NULL;
+
+    // set node type
+    node->nodeType = EXPRESSIONNODE;
 
     // return node
     return node;
@@ -132,6 +138,9 @@ ExpressionNode * nextExpression(unsigned char * data, int size)
 
     // first node 
     ExpressionNode * node = (ExpressionNode *)malloc(sizeof(ExpressionNode));
+
+    // set node type
+    node->nodeType = EXPRESSIONNODE;
 
     // set cur to the first node
     ExpressionNode * cur = node;
@@ -198,6 +207,9 @@ ExpressionNode * nextExpression(unsigned char * data, int size)
                     
                     // set cur to the right node
                     cur = cur->right;
+
+                    // set node type
+                    cur->nodeType = EXPRESSIONNODE;
 
                     // sets the root to the new token
                     cur->root = nextToken(&statement, &size);
@@ -268,6 +280,9 @@ int main(int argc, char * argv[])
         // define statement size
         int statementSize;
 
+        // initialize program node
+        ProgramNode * program = initProgramNode();
+
         // while there is still more to read
         while ((int)(curPos - fileData) < fileSize)
         {
@@ -279,17 +294,11 @@ int main(int argc, char * argv[])
             if (statementSize >= 0)
             {
 
-                printf("%d => ", statementSize);
-
-                printfNum(curPos, statementSize);
-
+                // Get the expression node
                 ExpressionNode * node = nextExpression(curPos, statementSize);
 
-                printExpressionNode(node);
-
-                printf("\n");
-
-                //free(node);
+                // Add expression node to the program node
+                addElementToProgramNode(program, (void *)node);
 
                 // increase pointer by statement size + 1 (semicolon)
                 curPos += statementSize + 1;
@@ -299,10 +308,26 @@ int main(int argc, char * argv[])
 
         }
 
-        // free file data
-        free(fileData);
+        for (int i = 0; i < program->count; i++)
+        {
+            printExpressionNode(program->nodes[i]);
+            printf("\n");
+        }
 
         for (int i = 0; i < constants->ints->count; i++) 
             printf("%s\n", constants->ints->list[i]);
+
+
+        // free file data
+        free(fileData);
+
+        // free program node
+        freeProgramNode(program);
+
+        // free ints list
+        freeList(constants->ints);
+
+        // free constants
+        free(constants);
     }
 }

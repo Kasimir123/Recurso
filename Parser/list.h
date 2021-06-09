@@ -8,3 +8,4 @@ typedef struct List
 List * initList();
 void addElement(List * list, char * element);
 char containsElement(List * list, char * element);
+void freeList(List * list);
