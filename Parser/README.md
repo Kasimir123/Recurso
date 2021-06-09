@@ -174,6 +174,8 @@ This node will contain a list of other nodes. This will then contain all the log
 
 The function node will contain the function return type, name, parameters, and patterns. It will also contain a program node that will keep track of all of its functions and code.
 
+Adding a parameter node, this will be a linked list.
+
 #### Expression Node
 
 The expression node will contain the root data, and then two children. These children can either be values, null, or another expression node.
