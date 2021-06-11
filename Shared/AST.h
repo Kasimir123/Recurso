@@ -53,6 +53,8 @@ struct ExpressionNode {
     // type of node this is
     char nodeType;
 
+    char isPrint;
+
     // root data
     char * root;
 

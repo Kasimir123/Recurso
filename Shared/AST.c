@@ -3,6 +3,9 @@
 // Print expression node
 void printExpressionNode(ExpressionNode * node)
 {
+
+    if (!node->isPrint) fprintf(stdout, "print ");
+
     // If left and right nodes are null then print root
     if (node->left == NULL && node->right == NULL) fprintf(stdout, "%s ", node->root);
     // else
@@ -95,10 +98,11 @@ void freeProgramNode(ProgramNode * node)
         }
     }
 
-    // loop through remainder of node space
-    for (int i = node->count; i < node->capacity; i++)
-        // free the empty nodes
-        free(node->nodes[i]);
+
+    // // loop through remainder of node space
+    // for (int i = node->count; i < node->capacity; i++)
+    //     // free the empty nodes
+    //     free(node->nodes[i]);
 
     // free nodes array
     free(node->nodes);

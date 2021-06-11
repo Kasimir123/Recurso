@@ -1,2 +1,1 @@
-gcc ./Parser/parser.c Parser/list.c Shared/StdCalls.c Shared/AST.c -o parser.elf
-
+gcc ./Parser/parser.c Shared/list.c Shared/StdCalls.c Shared/AST.c Shared/BytecodeFile.c Compiler/compiler.c Interpreter/interpreter.c -o parser.elf

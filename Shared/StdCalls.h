@@ -14,3 +14,7 @@ unsigned char * readFile(char * filePath, int * size);
 void printfNum(unsigned char * data, int size);
 
 char checkExpressionCharacters(unsigned char * token);
+
+unsigned char * intToBytes(int x);
+
+int bytesToInt(unsigned char * bytes);

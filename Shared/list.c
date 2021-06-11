@@ -1,6 +1,7 @@
 #include "list.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 // Initializes the list
 List * initList()
@@ -42,13 +43,13 @@ void addElement(List * list, char * element)
 }
 
 // Check if the list contains the element
-char containsElement(List * list, char * element)
+char getElement(List * list, char * element)
 {
     // Loop through list
     for (int i = 0; i < list->count; i++)
         // If in list then return 0
-        if (!strcmp(list->list[i], element)) return 0;
-    return 1;
+        if (!strcmp(list->list[i], element)) return i;
+    return -1;
 }
 
 // Free the list

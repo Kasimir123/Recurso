@@ -155,7 +155,6 @@ ExpressionNode * nextExpression(unsigned char * data, int size)
 
             // start state
             case Start:
-
                 // check if the statement is empty
                 if (!size)
                 {
@@ -184,12 +183,24 @@ ExpressionNode * nextExpression(unsigned char * data, int size)
             // first state
             case First:
 
-                // sets the root to the next token
-                // SECURITY - potential security problem here
-                cur->root = nextToken(&statement, &size);
+                if (!hasNextToken(statement, size))
+                {
+                    // sets the root to the next token
+                    // SECURITY - potential security problem here
+                    cur->root = nextToken(&statement, &size);
 
-                // sets the state to root
-                state = Root;
+                    // sets the state to root
+                    state = Root;
+                }
+                else 
+                {
+                    cur->root = cur->left->root;
+                    cur->left = NULL;
+                    cur->right = NULL;
+                    state = End;
+                }
+
+                
                 break;
 
             // root state
@@ -248,6 +259,19 @@ int nextStatement(unsigned char ** data)
     return found ? (int)(found - *data) : -1;
 }
 
+char checkIfPrint(unsigned char * statement, int size)
+{
+    if (size < 8) return 1;
+
+    char print[7] = "print("; 
+
+    for (int i = 0; i < 5; i++)
+        if (print[i] != statement[i]) return 1;
+
+    return 0;
+
+}
+
 // Initialize the constants
 void initializeConstants()
 {
@@ -274,6 +298,9 @@ int main(int argc, char * argv[])
         // Read in the file data
         unsigned char * fileData = readFile(argv[1], &fileSize);
 
+        printf("\nProgram:\n\n");
+        printf("%s\n", fileData);
+
         // Make another pointer for positioning, allows us to free data afterwards
         unsigned char * curPos = fileData;
 
@@ -294,8 +321,30 @@ int main(int argc, char * argv[])
             if (statementSize >= 0)
             {
 
-                // Get the expression node
-                ExpressionNode * node = nextExpression(curPos, statementSize);
+                ExpressionNode * node;
+
+                if (checkIfPrint(curPos, statementSize))
+                {
+                    // Get the expression node
+                    node = nextExpression(curPos, statementSize);
+
+                    node->isPrint = 1;
+                }
+                else
+                {
+                    char * withoutPrint = curPos + 6;
+
+                    int newSize = statementSize - 6;
+
+                    withoutPrint[newSize] = '\x00';
+
+                    withoutPrint[newSize - 1] = ';'; 
+
+                    node = nextExpression(withoutPrint, newSize - 1);
+
+                    node->isPrint = 0;
+                }
+
 
                 // Add expression node to the program node
                 addElementToProgramNode(program, (void *)node);
@@ -308,15 +357,22 @@ int main(int argc, char * argv[])
 
         }
 
+        
+        printf("\nNodes:\n\n");
         for (int i = 0; i < program->count; i++)
         {
             printExpressionNode(program->nodes[i]);
             printf("\n");
         }
 
+        printf("\nVariables:\n\n");
         for (int i = 0; i < constants->ints->count; i++) 
             printf("%s\n", constants->ints->list[i]);
 
+        
+        printf("\nBytecode:\n\n");
+
+        compileBytecode(program, constants->ints);
 
         // free file data
         free(fileData);
