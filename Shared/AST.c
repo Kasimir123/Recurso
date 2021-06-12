@@ -44,6 +44,54 @@ ProgramNode * initProgramNode()
     return programNode;
 }
 
+// intiializes the function node with a given name
+FunctionNode * initFunctionNode(char * name)
+{
+    // mallocs the function node
+    FunctionNode * functionNode = (FunctionNode *)malloc(sizeof(FunctionNode));
+
+    // sets the name
+    functionNode->name = name;
+
+    // sets the name length
+    functionNode->nameLen = strlen(name);
+
+    // sets the locals list, this may end up getting split into the different types
+    functionNode->locals = initList();
+
+    // Capacity
+    functionNode->capacity = 5;
+    
+    // Count
+    functionNode->count = 0;
+
+    // Malloc nodes list
+    functionNode->nodes = (void **)malloc(sizeof(void *) * functionNode->capacity);
+
+    // return node
+    return functionNode;
+}
+
+// Adds element to the function node
+void addElementToFunctionNode(FunctionNode * functionNode, void * node)
+{
+    // Check if at capacity
+    if (functionNode->count >= functionNode->capacity)
+    {
+        // Double capacity
+        functionNode->capacity *= 2;
+
+        // Reallocate the list
+        functionNode->nodes = (void **)realloc(functionNode->nodes, sizeof(void *) * functionNode->capacity);
+    }
+    
+    // Add the node
+    functionNode->nodes[functionNode->count] = node;
+
+    // Increase counter
+    functionNode->count++;
+}
+
 // Add element to ProgramNode
 void addElementToProgramNode(ProgramNode * programNode, void * node)
 {

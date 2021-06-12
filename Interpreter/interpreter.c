@@ -1,5 +1,6 @@
 #include "interpreter.h"
 
+// Prints the stack, for debugging purposes
 void printStack(int * stack)
 {
     printf("STACK: [");
@@ -8,19 +9,35 @@ void printStack(int * stack)
     printf("]\n");
 }
 
+Function ** initializeFunctions(BytecodeFile * bFile)
+{
+    
+}
+
+// runs the program
 void runProgram(unsigned char * opCodes, int length)
 {
+    // for debugging
     printf("\nProgram Runtime:\n\n");
+
+
+    int numOfFuncs = 1;
+    
+    Function ** functions = (Function **)malloc(sizeof(Function *) * numOfFuncs);
+
     int ip = 0;
     int sp = 0;
     int stack[10];
     int local[5];
 
+    // main "CPU", continues going until HALT is reached
     while (opCodes[ip] != HALT)
     {
+        // Gets the current opcode
         unsigned char op = opCodes[ip++];
-        // printStack(stack);
+        //printStack(stack);
 
+        // switch between all possible opcodes
         switch (op)
         {
             case (ISUB):

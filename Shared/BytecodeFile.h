@@ -1,4 +1,5 @@
 #include "../Shared/StdCalls.h"
+#include "../Shared/AST.h"
 
 #define ISUB '\x01'
 #define IMUL '\x02'
@@ -16,6 +17,8 @@
 #define RET '\x0E'
 #define PRINT '\x0F'
 #define POP '\x10'
+#define FUNC '\x11'
+#define FUNCINFO '\x12'
 
 #define LISUB "ISUB"
 #define LIMUL "IMUL"
@@ -33,16 +36,23 @@
 #define LRET "RET"
 #define LPRINT "PRINT"
 #define LPOP "POP"
+#define LFUNC "."
+#define LPARAMS "Params="
+#define LLOCALS "Locals="
 
 
 typedef struct BytecodeFile
 {
-    int count;
-    int capacity;
-    unsigned char * data;
+    int programCount;
+    int programCapacity;
+    int functionCount;
+    int functionCapacity;
+    unsigned char * functionData;
+    unsigned char * programData;
 } BytecodeFile;
 
 BytecodeFile * initBytecodeFile();
+void addFunction(BytecodeFile * bFile, FunctionNode * function);
 void addOp(BytecodeFile * bFile, unsigned char op);
 void addOps(BytecodeFile * bFile, unsigned char * ops, int size);
 void addOpAndInt(BytecodeFile * bFile, unsigned char op, int x);

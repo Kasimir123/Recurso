@@ -91,7 +91,7 @@ void checkIfType(unsigned char ** statement, int * size)
         free(nextToken(statement, size));
 
         // Adds the next token to the list
-        addElement(constants->ints, previewNextToken(* statement, * size));
+        addElement(curFunction->locals, previewNextToken(* statement, * size));
     }
 
     // free previewed token
@@ -259,27 +259,22 @@ int nextStatement(unsigned char ** data)
     return found ? (int)(found - *data) : -1;
 }
 
+// Checks to see if the current statement is a print statement
 char checkIfPrint(unsigned char * statement, int size)
 {
+    // if its not long enough we exit
     if (size < 8) return 1;
 
+    // might want to turn into a constant
     char print[7] = "print("; 
 
+    // checks if the statement matches the pattern
     for (int i = 0; i < 5; i++)
         if (print[i] != statement[i]) return 1;
 
+    // if it matched the pattern we return
     return 0;
 
-}
-
-// Initialize the constants
-void initializeConstants()
-{
-    // Malloc space for constants
-    constants = (Constants *)malloc(sizeof(Constants));
-
-    // Initialize the ints list
-    constants->ints = initList();
 }
 
 int main(int argc, char * argv[])
@@ -288,9 +283,6 @@ int main(int argc, char * argv[])
     // If we have a file path and that path contains .rec
     if (argc == 2 && strstr(argv[1], ".rec"))
     {
-
-        // Initialize the constants
-        initializeConstants();
 
         // Filesize
         int fileSize;
@@ -310,6 +302,15 @@ int main(int argc, char * argv[])
         // initialize program node
         ProgramNode * program = initProgramNode();
 
+        // initialize the main function node
+        FunctionNode * mainFunction = initFunctionNode("main");
+
+        // add the main function to the program node
+        addElementToProgramNode(program, (void *)mainFunction);
+
+        // set the current function node
+        curFunction = mainFunction;
+
         // while there is still more to read
         while ((int)(curPos - fileData) < fileSize)
         {
@@ -321,33 +322,42 @@ int main(int argc, char * argv[])
             if (statementSize >= 0)
             {
 
+                // declare the expression node
                 ExpressionNode * node;
 
+                // if it is not a print
                 if (checkIfPrint(curPos, statementSize))
                 {
                     // Get the expression node
                     node = nextExpression(curPos, statementSize);
 
+                    // set print to false
                     node->isPrint = 1;
                 }
+                // if it is a print statement
                 else
                 {
+                    // removes the print statement bytes
                     char * withoutPrint = curPos + 6;
 
+                    // gets the new statement size
                     int newSize = statementSize - 6;
 
+                    // sets the new end of the statement
                     withoutPrint[newSize] = '\x00';
 
+                    // replaces the ) with the semi-colon
                     withoutPrint[newSize - 1] = ';'; 
 
+                    // Gets the expression node
                     node = nextExpression(withoutPrint, newSize - 1);
 
+                    // set is print to true
                     node->isPrint = 0;
                 }
 
-
-                // Add expression node to the program node
-                addElementToProgramNode(program, (void *)node);
+                // Add expression node to the function node
+                addElementToFunctionNode(curFunction, (void *)node);
 
                 // increase pointer by statement size + 1 (semicolon)
                 curPos += statementSize + 1;
@@ -357,33 +367,37 @@ int main(int argc, char * argv[])
 
         }
 
-        
-        printf("\nNodes:\n\n");
+
+        // print things for debugging        
+        printf("\nFunctions:\n\n");
         for (int i = 0; i < program->count; i++)
         {
-            printExpressionNode(program->nodes[i]);
-            printf("\n");
+            FunctionNode * func = program->nodes[i];
+            printf("Name: %s\n", func->name);
+            
+            printf("\nNodes:\n\n");
+            for (int j = 0; j < func->count; j++)
+            {
+                printExpressionNode(func->nodes[j]);
+                printf("\n");
+            }
+            printf("\nVariables:\n\n");
+            for (int j = 0; j < func->locals->count; j++)
+            {
+                printf("%s\n", func->locals->list[j]);
+            }
         }
-
-        printf("\nVariables:\n\n");
-        for (int i = 0; i < constants->ints->count; i++) 
-            printf("%s\n", constants->ints->list[i]);
 
         
         printf("\nBytecode:\n\n");
 
-        compileBytecode(program, constants->ints);
+        // compile the bytecode
+        compileBytecode(program);
 
         // free file data
         free(fileData);
 
         // free program node
         freeProgramNode(program);
-
-        // free ints list
-        freeList(constants->ints);
-
-        // free constants
-        free(constants);
     }
 }

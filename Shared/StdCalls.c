@@ -64,6 +64,7 @@ char checkExpressionCharacters(unsigned char * token)
     else return 1;
 }
 
+// converts and int to bytes
 unsigned char * intToBytes(int x)
 {
     unsigned char * bytes = (unsigned char *)malloc(sizeof(unsigned char) * 4);
@@ -76,6 +77,7 @@ unsigned char * intToBytes(int x)
     return bytes;
 }
 
+// converts bytes to an int
 int bytesToInt(unsigned char * bytes)
 {
     int x = (bytes[0] << 24) + (bytes[1] << 16) + (bytes[2] << 8) + bytes[3];
