@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include "list.h"
 
 #define EXPRESSIONNODE 'e'
 
@@ -53,6 +55,8 @@ struct ExpressionNode {
     // type of node this is
     char nodeType;
 
+    char isPrint;
+
     // root data
     char * root;
 
@@ -84,16 +88,19 @@ struct FunctionNode {
     // memory usage vs runtime speeds
     int nameLen;
 
+    int address;
+
+    int params;
+
     // Start of linked list for parameters
-    ParameterNode * firstParam;
+    List * locals;
 
-    // ****************
-    // Pattern Node may be Parameter Node in which case we will need to 
-    // add another variable, will need to see as we build program
-    // ****************
+    int capacity;
 
-    // All inner program information
-    ProgramNode * inner;
+    int count;
+
+    // all of the nodes in the program
+    void * * nodes;
 
 };
 
@@ -102,6 +109,10 @@ enum ExpressionState {Start, First, Root, End};
 void printExpressionNode(ExpressionNode * node);
 
 ProgramNode * initProgramNode();
+
+FunctionNode * initFunctionNode(char * name);
+
+void addElementToFunctionNode(FunctionNode * functionNode, void * node);
 
 void addElementToProgramNode(ProgramNode * programNode, void * node);
 

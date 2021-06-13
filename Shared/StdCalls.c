@@ -63,3 +63,23 @@ char checkExpressionCharacters(unsigned char * token)
     if (token[0] >= 42 && token[0] <= 47) return 0;
     else return 1;
 }
+
+// converts and int to bytes
+unsigned char * intToBytes(int x)
+{
+    unsigned char * bytes = (unsigned char *)malloc(sizeof(unsigned char) * 4);
+
+    bytes[0] = (x >> 24) & 0xFF;
+    bytes[1] = (x >> 16) & 0xFF;
+    bytes[2] = (x >> 8) & 0xFF;
+    bytes[3] = x & 0xFF;
+
+    return bytes;
+}
+
+// converts bytes to an int
+int bytesToInt(unsigned char * bytes)
+{
+    int x = (bytes[0] << 24) + (bytes[1] << 16) + (bytes[2] << 8) + bytes[3];
+    return x;
+}

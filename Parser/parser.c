@@ -91,7 +91,7 @@ void checkIfType(unsigned char ** statement, int * size)
         free(nextToken(statement, size));
 
         // Adds the next token to the list
-        addElement(constants->ints, previewNextToken(* statement, * size));
+        addElement(curFunction->locals, previewNextToken(* statement, * size));
     }
 
     // free previewed token
@@ -155,7 +155,6 @@ ExpressionNode * nextExpression(unsigned char * data, int size)
 
             // start state
             case Start:
-
                 // check if the statement is empty
                 if (!size)
                 {
@@ -184,12 +183,24 @@ ExpressionNode * nextExpression(unsigned char * data, int size)
             // first state
             case First:
 
-                // sets the root to the next token
-                // SECURITY - potential security problem here
-                cur->root = nextToken(&statement, &size);
+                if (!hasNextToken(statement, size))
+                {
+                    // sets the root to the next token
+                    // SECURITY - potential security problem here
+                    cur->root = nextToken(&statement, &size);
 
-                // sets the state to root
-                state = Root;
+                    // sets the state to root
+                    state = Root;
+                }
+                else 
+                {
+                    cur->root = cur->left->root;
+                    cur->left = NULL;
+                    cur->right = NULL;
+                    state = End;
+                }
+
+                
                 break;
 
             // root state
@@ -248,14 +259,22 @@ int nextStatement(unsigned char ** data)
     return found ? (int)(found - *data) : -1;
 }
 
-// Initialize the constants
-void initializeConstants()
+// Checks to see if the current statement is a print statement
+char checkIfPrint(unsigned char * statement, int size)
 {
-    // Malloc space for constants
-    constants = (Constants *)malloc(sizeof(Constants));
+    // if its not long enough we exit
+    if (size < 8) return 1;
 
-    // Initialize the ints list
-    constants->ints = initList();
+    // might want to turn into a constant
+    char print[7] = "print("; 
+
+    // checks if the statement matches the pattern
+    for (int i = 0; i < 5; i++)
+        if (print[i] != statement[i]) return 1;
+
+    // if it matched the pattern we return
+    return 0;
+
 }
 
 int main(int argc, char * argv[])
@@ -265,14 +284,14 @@ int main(int argc, char * argv[])
     if (argc == 2 && strstr(argv[1], ".rec"))
     {
 
-        // Initialize the constants
-        initializeConstants();
-
         // Filesize
         int fileSize;
 
         // Read in the file data
         unsigned char * fileData = readFile(argv[1], &fileSize);
+
+        printf("\nProgram:\n\n");
+        printf("%s\n", fileData);
 
         // Make another pointer for positioning, allows us to free data afterwards
         unsigned char * curPos = fileData;
@@ -282,6 +301,15 @@ int main(int argc, char * argv[])
 
         // initialize program node
         ProgramNode * program = initProgramNode();
+
+        // initialize the main function node
+        FunctionNode * mainFunction = initFunctionNode("main");
+
+        // add the main function to the program node
+        addElementToProgramNode(program, (void *)mainFunction);
+
+        // set the current function node
+        curFunction = mainFunction;
 
         // while there is still more to read
         while ((int)(curPos - fileData) < fileSize)
@@ -294,11 +322,42 @@ int main(int argc, char * argv[])
             if (statementSize >= 0)
             {
 
-                // Get the expression node
-                ExpressionNode * node = nextExpression(curPos, statementSize);
+                // declare the expression node
+                ExpressionNode * node;
 
-                // Add expression node to the program node
-                addElementToProgramNode(program, (void *)node);
+                // if it is not a print
+                if (checkIfPrint(curPos, statementSize))
+                {
+                    // Get the expression node
+                    node = nextExpression(curPos, statementSize);
+
+                    // set print to false
+                    node->isPrint = 1;
+                }
+                // if it is a print statement
+                else
+                {
+                    // removes the print statement bytes
+                    char * withoutPrint = curPos + 6;
+
+                    // gets the new statement size
+                    int newSize = statementSize - 6;
+
+                    // sets the new end of the statement
+                    withoutPrint[newSize] = '\x00';
+
+                    // replaces the ) with the semi-colon
+                    withoutPrint[newSize - 1] = ';'; 
+
+                    // Gets the expression node
+                    node = nextExpression(withoutPrint, newSize - 1);
+
+                    // set is print to true
+                    node->isPrint = 0;
+                }
+
+                // Add expression node to the function node
+                addElementToFunctionNode(curFunction, (void *)node);
 
                 // increase pointer by statement size + 1 (semicolon)
                 curPos += statementSize + 1;
@@ -308,26 +367,37 @@ int main(int argc, char * argv[])
 
         }
 
+
+        // print things for debugging        
+        printf("\nFunctions:\n\n");
         for (int i = 0; i < program->count; i++)
         {
-            printExpressionNode(program->nodes[i]);
-            printf("\n");
+            FunctionNode * func = program->nodes[i];
+            printf("Name: %s\n", func->name);
+            
+            printf("\nNodes:\n\n");
+            for (int j = 0; j < func->count; j++)
+            {
+                printExpressionNode(func->nodes[j]);
+                printf("\n");
+            }
+            printf("\nVariables:\n\n");
+            for (int j = 0; j < func->locals->count; j++)
+            {
+                printf("%s\n", func->locals->list[j]);
+            }
         }
 
-        for (int i = 0; i < constants->ints->count; i++) 
-            printf("%s\n", constants->ints->list[i]);
+        
+        printf("\nBytecode:\n\n");
 
+        // compile the bytecode
+        compileBytecode(program);
 
         // free file data
         free(fileData);
 
         // free program node
         freeProgramNode(program);
-
-        // free ints list
-        freeList(constants->ints);
-
-        // free constants
-        free(constants);
     }
 }

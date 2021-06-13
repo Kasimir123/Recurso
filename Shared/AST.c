@@ -3,6 +3,9 @@
 // Print expression node
 void printExpressionNode(ExpressionNode * node)
 {
+
+    if (!node->isPrint) fprintf(stdout, "print ");
+
     // If left and right nodes are null then print root
     if (node->left == NULL && node->right == NULL) fprintf(stdout, "%s ", node->root);
     // else
@@ -39,6 +42,54 @@ ProgramNode * initProgramNode()
 
     // Return ProgramNode
     return programNode;
+}
+
+// intiializes the function node with a given name
+FunctionNode * initFunctionNode(char * name)
+{
+    // mallocs the function node
+    FunctionNode * functionNode = (FunctionNode *)malloc(sizeof(FunctionNode));
+
+    // sets the name
+    functionNode->name = name;
+
+    // sets the name length
+    functionNode->nameLen = strlen(name);
+
+    // sets the locals list, this may end up getting split into the different types
+    functionNode->locals = initList();
+
+    // Capacity
+    functionNode->capacity = 5;
+    
+    // Count
+    functionNode->count = 0;
+
+    // Malloc nodes list
+    functionNode->nodes = (void **)malloc(sizeof(void *) * functionNode->capacity);
+
+    // return node
+    return functionNode;
+}
+
+// Adds element to the function node
+void addElementToFunctionNode(FunctionNode * functionNode, void * node)
+{
+    // Check if at capacity
+    if (functionNode->count >= functionNode->capacity)
+    {
+        // Double capacity
+        functionNode->capacity *= 2;
+
+        // Reallocate the list
+        functionNode->nodes = (void **)realloc(functionNode->nodes, sizeof(void *) * functionNode->capacity);
+    }
+    
+    // Add the node
+    functionNode->nodes[functionNode->count] = node;
+
+    // Increase counter
+    functionNode->count++;
 }
 
 // Add element to ProgramNode
@@ -95,10 +146,11 @@ void freeProgramNode(ProgramNode * node)
         }
     }
 
-    // loop through remainder of node space
-    for (int i = node->count; i < node->capacity; i++)
-        // free the empty nodes
-        free(node->nodes[i]);
+
+    // // loop through remainder of node space
+    // for (int i = node->count; i < node->capacity; i++)
+    //     // free the empty nodes
+    //     free(node->nodes[i]);
 
     // free nodes array
     free(node->nodes);
