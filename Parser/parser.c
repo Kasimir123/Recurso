@@ -1,10 +1,35 @@
 #include "parser.h"
 
+unsigned char checkIfBad(unsigned char c)
+{
+    if ((c <= 32 || c == 40 || c == 41 || c == 44
+        || c == 123) && c != ';')
+    {
+        return 1;
+    }
+    return 0;
+}
+
+unsigned char * nextFound(unsigned char * statement, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        if (checkIfBad(* statement))
+        {
+            return statement;
+        }
+        statement++;
+    }
+    return statement;
+}
+
 // checks if another token is present in the statement
 char hasNextToken(unsigned char * statement, int size)
 {
+    while (checkIfBad(* statement)) (statement)++;
+
     // Checks for space seperated tokens
-    unsigned char * found = (unsigned char *)strchr(statement, ' ');
+    unsigned char * found = nextFound(statement, size);
 
     // if no space seperated, look for the semicolon
     if (!found || (int)(found - statement) > size) found = (unsigned char *)strchr(statement, ';');
@@ -18,8 +43,10 @@ char hasNextToken(unsigned char * statement, int size)
 
 unsigned char * previewNextToken(unsigned char * statement, int size)
 {
+    while (checkIfBad(* statement)) (statement)++;
+
     // Checks for space seperated tokens
-    unsigned char * found = (unsigned char *)strchr(statement, ' ');
+    unsigned char * found = nextFound(statement, size);
 
     // if no space seperated, look for the semicolon
     if (!found || (int)(found - statement) > size) found = (unsigned char *)strchr(statement, ';');
@@ -45,13 +72,14 @@ char isTokenVariable(unsigned char * token)
 
 }
 
-
-
 // Gets the next token in the system
 unsigned char * nextToken(unsigned char ** statement, int * size)
 {
+
+    while (checkIfBad(** statement)) (* statement)++;
+
     // Checks for space seperated tokens
-    unsigned char * found = (unsigned char *)strchr(*statement, ' ');
+    unsigned char * found = nextFound(* statement, * size);
 
     // if no space seperated, look for the semicolon
     if (!found || (int)(found - *statement) > * size) found = (unsigned char *)strchr(*statement, ';');
@@ -73,6 +101,8 @@ unsigned char * nextToken(unsigned char ** statement, int * size)
 
     // end the token string
     token[space] = '\x0';
+
+    // printf("Next token: %s\n", token);
 
     // return the token
     return token;
@@ -126,6 +156,8 @@ ExpressionNode * nextExpression(unsigned char * data, int size)
 {
     // Get a pointer to the data, new pointer so we can increment it
     unsigned char * statement = data;
+
+    // printf("Expression Data: %s\n", data);
 
     // Get the statement size
     int statementSize = size;
@@ -252,6 +284,8 @@ int nextStatement(unsigned char ** data)
     // Ignore new lines
     while (**data == '\n' || **data == '\xd') (*data)++;
 
+    while (checkIfBad(**data)) (*data)++;
+
     // Get the next semicolon
     unsigned char * found = (unsigned char *)strchr(*data, ';');
 
@@ -277,46 +311,60 @@ char checkIfPrint(unsigned char * statement, int size)
 
 }
 
-int main(int argc, char * argv[])
+// Checks to see if the current statement is a return statement
+char checkIfReturn(unsigned char * statement, int size)
 {
+    return strcmp(previewNextToken(statement, size), "return");
 
-    // If we have a file path and that path contains .rec
-    if (argc == 2 && strstr(argv[1], ".rec"))
+}
+
+// Gets the end of the next function
+int nextFunctionEnd(unsigned char * data)
+{
+    unsigned char * found = (unsigned char *)strchr(data, '}');
+
+    return found ? (int)(found - data) : -1;
+}
+
+char checkIfFunction(unsigned char * statement, int size)
+{
+    // Preview next token
+    unsigned char * token = previewNextToken( statement,  size);
+
+    // if int
+    if (!strcmp(token, "int"))
     {
+        free(token);
+        unsigned char * nextStartFunction = (unsigned char *)strchr(statement, '{');
 
-        // Filesize
-        int fileSize;
+        if (nextStartFunction == NULL) return 1;
 
-        // Read in the file data
-        unsigned char * fileData = readFile(argv[1], &fileSize);
+        unsigned char * nextSemiColon =  (unsigned char *)strchr(statement, ';');
 
-        printf("\nProgram:\n\n");
-        printf("%s\n", fileData);
+        return ((int)(nextStartFunction - statement) > (int)(nextSemiColon - statement)) ? 1 : 0;
+    }
 
-        // Make another pointer for positioning, allows us to free data afterwards
-        unsigned char * curPos = fileData;
+    return 1;
+
+    // free previewed token
+    free(token);
+
+}
+
+// char * getFunctionName()
+
+void parseFunction(ProgramNode * program, unsigned char ** curPos)
+{
 
         // define statement size
         int statementSize;
 
-        // initialize program node
-        ProgramNode * program = initProgramNode();
-
-        // initialize the main function node
-        FunctionNode * mainFunction = initFunctionNode("main");
-
-        // add the main function to the program node
-        addElementToProgramNode(program, (void *)mainFunction);
-
-        // set the current function node
-        curFunction = mainFunction;
-
         // while there is still more to read
-        while ((int)(curPos - fileData) < fileSize)
+        while ((int)(*curPos - fileData) < fileSize)
         {
 
             // read the next statement
-            statementSize = nextStatement(&curPos);
+            statementSize = nextStatement(curPos);
 
             // if we were able to find a statement
             if (statementSize >= 0)
@@ -325,20 +373,69 @@ int main(int argc, char * argv[])
                 // declare the expression node
                 ExpressionNode * node;
 
+                int functionEnd =  nextFunctionEnd(*curPos);
+
+                // printf("Function End: %d\n", functionEnd);
+
+                // if we reached the end of the function then we exit the function
+                if (functionEnd != -1 && statementSize > functionEnd)
+                {
+                    return;
+                }
+                else if (!checkIfFunction(*curPos, statementSize))
+                {
+                    FunctionNode * oldFunction = curFunction;
+
+                    unsigned char * type = nextToken(curPos, &statementSize);
+
+                    unsigned char * name = nextToken(curPos, &statementSize);
+
+                    unsigned char * param1Type = nextToken(curPos, &statementSize);
+                    unsigned char * param1 = nextToken(curPos, &statementSize);
+
+                    unsigned char * param2Type = nextToken(curPos, &statementSize);
+                    unsigned char * param2 = nextToken(curPos, &statementSize);
+
+                    // printf("type: %s\n", type);
+                    // printf("name: %s\n", name);
+                    // printf("param 1: %s %s\n", param1Type, param1);
+                    // printf("param 2: %s %s\n", param2Type, param2);
+
+                    curFunction = initFunctionNode(name);
+
+                    addElement(curFunction->locals, param1);
+                    addElement(curFunction->locals, param2);
+
+                    addElementToProgramNode(program, (void *)curFunction);
+
+                    parseFunction(program, curPos);
+
+                    curFunction = oldFunction;
+
+                    *curPos = (unsigned char *)strchr(*curPos, '}') + 1;
+
+                    node = NULL;
+                }
+                else if (!checkIfReturn(*curPos, statementSize))
+                {
+                    nextToken(curPos, &statementSize);
+                    node = nextExpression(*curPos, statementSize);
+                    node->specialType = RETURNTYPE;
+                }
                 // if it is not a print
-                if (checkIfPrint(curPos, statementSize))
+                else if (checkIfPrint(*curPos, statementSize))
                 {
                     // Get the expression node
-                    node = nextExpression(curPos, statementSize);
+                    node = nextExpression(*curPos, statementSize);
 
                     // set print to false
-                    node->isPrint = 1;
+                    node->specialType = NOSPECIAL;
                 }
                 // if it is a print statement
                 else
                 {
                     // removes the print statement bytes
-                    char * withoutPrint = curPos + 6;
+                    char * withoutPrint = *curPos + 6;
 
                     // gets the new statement size
                     int newSize = statementSize - 6;
@@ -353,19 +450,55 @@ int main(int argc, char * argv[])
                     node = nextExpression(withoutPrint, newSize - 1);
 
                     // set is print to true
-                    node->isPrint = 0;
+                    node->specialType = PRINTTYPE;
                 }
 
-                // Add expression node to the function node
-                addElementToFunctionNode(curFunction, (void *)node);
 
-                // increase pointer by statement size + 1 (semicolon)
-                curPos += statementSize + 1;
+                if (node) 
+                {
+                    // Add expression node to the function node
+                    addElementToFunctionNode(curFunction, (void *)node);
+
+                    // increase pointer by statement size + 1 (semicolon)
+                    *curPos += statementSize + 1;
+                }
             }
             // otherwise exit the loop (no more semicolons found)
             else break;
 
         }
+}
+
+int main(int argc, char * argv[])
+{
+
+    // If we have a file path and that path contains .rec
+    if (argc == 2 && strstr(argv[1], ".rec"))
+    {
+
+        // Read in the file data
+        fileData = readFile(argv[1], &fileSize);
+
+        printf("\nProgram:\n\n");
+        printf("%s\n", fileData);
+
+        // Make another pointer for positioning, allows us to free data afterwards
+        unsigned char * curPos = fileData;
+
+        // initialize program node
+        ProgramNode * program = initProgramNode();
+
+        // initialize the main function node
+        FunctionNode * mainFunction = initFunctionNode("main");
+
+        // add the main function to the program node
+        addElementToProgramNode(program, (void *)mainFunction);
+
+        // set the current function node
+        curFunction = mainFunction;
+
+        printf("\nStatements:\n\n");
+        parseFunction(program, &curPos);
 
 
         // print things for debugging        
@@ -386,6 +519,8 @@ int main(int argc, char * argv[])
             {
                 printf("%s\n", func->locals->list[j]);
             }
+
+            printf("\n");
         }
 
         

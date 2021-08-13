@@ -15,7 +15,7 @@ Function ** initializeFunctions(BytecodeFile * bFile)
 }
 
 // runs the program
-void runProgram(unsigned char * opCodes, int length)
+void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
 {
     // for debugging
     printf("\nProgram Runtime:\n\n");
@@ -40,13 +40,24 @@ void runProgram(unsigned char * opCodes, int length)
         // switch between all possible opcodes
         switch (op)
         {
-            case (ISUB):
-                break;
-            case (IMUL):
-                break;
-            case (IADD):;
+            case (ISUB):;
                 int a = stack[--sp];
                 int b = stack[--sp];
+                stack[sp++] = a - b;
+                break;
+            case (IMUL):
+                a = stack[--sp];
+                b = stack[--sp];
+                stack[sp++] = a * b;
+                break;
+            case (IDIV):
+                a = stack[--sp];
+                b = stack[--sp];
+                stack[sp++] = a / b;
+                break;
+            case (IADD):;
+                a = stack[--sp];
+                b = stack[--sp];
                 stack[sp++] = a + b;
                 break;
             case (FADD):
@@ -92,6 +103,14 @@ void runProgram(unsigned char * opCodes, int length)
                 printf("%d\n", stack[--sp]);
                 break;
             case (POP):
+                break;
+            case (CALL):
+                i[4];
+                i[0] = opCodes[ip++];
+                i[1] = opCodes[ip++];
+                i[2] = opCodes[ip++];
+                i[3] = opCodes[ip++];
+
                 break;
         }
 

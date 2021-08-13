@@ -4,6 +4,8 @@
 // Global Bytecode File
 BytecodeFile * bFile;
 
+List * funcNames;
+
 // Checks if the node is an end node
 // Can possibly change this to only take expression nodes
 char isEndNode(void * node)
@@ -38,6 +40,11 @@ void nodeToBytecode(ExpressionNode * node, List * locals)
     {
         addOp(bFile, IMUL);
     }
+    // else if it is division
+    else if (!strcmp(node->root, "/"))
+    {
+        addOp(bFile, IDIV);
+    }
     // otherwise assume we are loading a constant
     // currently only supports ints
     else 
@@ -69,7 +76,7 @@ void processExpressions(ExpressionNode * node, List * locals)
         addOpAndInt(bFile, STORE, getElement(locals, node->left->root));
     }
     // if it is a print node
-    else if (!node->isPrint)
+    else if (node->specialType == PRINTTYPE)
     {
         // if there are values to the right we will want to process them
         if (node->right != NULL) processExpressions(node->right, locals);
@@ -82,6 +89,29 @@ void processExpressions(ExpressionNode * node, List * locals)
 
         // add the print opcode
         addOp(bFile, PRINT);
+    }
+    else if (node->specialType == RETURNTYPE)
+    {
+        // if there are values to the right we will want to process them
+        if (node->right != NULL) processExpressions(node->right, locals);
+
+        // if the left node is not null we want to convert it to bytecode
+        if (node->left != NULL) nodeToBytecode(node->left, locals);
+
+        // convert the root node to bytecode
+        nodeToBytecode(node, locals);
+
+        
+        addOp(bFile, RET);
+    }
+    else if (node->left && getElement(funcNames, node->left->root) != -1)
+    {
+        // if there are values to the right we will want to process them
+        if (node->right != NULL) processExpressions(node->right, locals);
+
+        nodeToBytecode(node, locals);
+
+        addOpAndInt(bFile, CALL, getElement(funcNames, node->left->root));
     }
     // else if it is an end node
     else if (isEndNode((void *)(node)))
@@ -109,11 +139,24 @@ void compileBytecode(ProgramNode * programNode)
     // initialize the bytecode file
     bFile = initBytecodeFile();
 
+    funcNames = initList();
+
     // loop through all function nodes in the program
     for (int i = 0; i < programNode->count; i++)
     {
         // gets the current function node
         FunctionNode * cur = programNode->nodes[i];
+
+        addElement(funcNames, cur->name);
+    }
+
+    // loop through all function nodes in the program
+    for (int i = 0; i < programNode->count; i++)
+    {
+        // gets the current function node
+        FunctionNode * cur = programNode->nodes[i];
+
+        printf("func name: %s\n", cur->name);
 
         // Sets the address to the current program count (start of function opcodes)
         cur->address = bFile->programCount;
@@ -126,14 +169,13 @@ void compileBytecode(ProgramNode * programNode)
 
             // process the expression nodes
             processExpressions(cur->nodes[j], cur->locals);
+
+        if (i == 0) addOp(bFile, HALT);
     }
-        
-    // adds halt opcode, will need to refactor 
-    addOp(bFile, HALT);
 
     // prints the bytecode file, for debugging
     printAsLong(bFile);
 
     // runs the program
-    runProgram(bFile->programData, bFile->programCount);
+    runProgram(bFile->functionData, bFile->programData, bFile->programCount);
 }

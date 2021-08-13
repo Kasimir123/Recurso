@@ -6,4 +6,4 @@ typedef struct Function
     void ** locals;
 } Function;
 
-void runProgram(unsigned char * opCodes, int length);
+void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length);

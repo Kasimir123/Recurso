@@ -4,7 +4,8 @@
 void printExpressionNode(ExpressionNode * node)
 {
 
-    if (!node->isPrint) fprintf(stdout, "print ");
+    if (node->specialType == PRINTTYPE) fprintf(stdout, "print ");
+    if (node->specialType == RETURNTYPE) fprintf(stdout, "return ");
 
     // If left and right nodes are null then print root
     if (node->left == NULL && node->right == NULL) fprintf(stdout, "%s ", node->root);
@@ -75,6 +76,7 @@ FunctionNode * initFunctionNode(char * name)
 // Adds element to the function node
 void addElementToFunctionNode(FunctionNode * functionNode, void * node)
 {
+
     // Check if at capacity
     if (functionNode->count >= functionNode->capacity)
     {
