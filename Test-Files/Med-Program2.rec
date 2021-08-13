@@ -6,8 +6,14 @@ int multiplication(int x, int y)
     return x * y;
 }
 
+int divide(int a, int b)
+{
+    int z = a / b;
+    return z;
+}
+
 int z = multiplication(x,y);
-int a = multiplication(x,z);
+int a = divide(x,y);
 
 print(z);
 print(a);

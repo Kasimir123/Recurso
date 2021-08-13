@@ -406,6 +406,8 @@ void parseFunction(ProgramNode * program, unsigned char ** curPos)
                     addElement(curFunction->locals, param1);
                     addElement(curFunction->locals, param2);
 
+                    curFunction->params = 2;
+
                     addElementToProgramNode(program, (void *)curFunction);
 
                     parseFunction(program, curPos);

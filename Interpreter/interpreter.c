@@ -9,9 +9,61 @@ void printStack(int * stack)
     printf("]\n");
 }
 
-Function ** initializeFunctions(BytecodeFile * bFile)
+Function ** initializeFunctions(unsigned char * funcOps)
 {
-    
+
+    int cap = 2;
+    int count = 1;
+    Function ** functions = (Function **)malloc(sizeof(Function *) * cap);
+
+    int i = 0;
+    unsigned char op = funcOps[i++];
+
+    while (op == FUNC)
+    {
+        // declare and intialize values
+
+        unsigned char params[4];
+        unsigned char locals[4];
+        unsigned char address[4];
+
+        // get next opcode
+        op = funcOps[i++];
+
+        // while not func info
+        while (op != FUNCINFO)
+        {
+            // print out function name
+            op = funcOps[i++];
+        }
+
+        // get local count
+        locals[0] = funcOps[i++];
+        locals[1] = funcOps[i++];
+        locals[2] = funcOps[i++];
+        locals[3] = funcOps[i++];
+
+        // get address
+        address[0] = funcOps[i++];
+        address[1] = funcOps[i++];
+        address[2] = funcOps[i++];
+        address[3] = funcOps[i++];
+
+        if (count >= cap)
+        {
+            cap *= 2;
+            functions = (Function **)realloc(functions, sizeof(Function *) * cap);
+        }
+
+        functions[count - 1] = (Function *)malloc(sizeof(Function));
+        functions[count - 1]->startAddress = bytesToInt(address);
+        count++;
+
+        // get the next opcode
+        op = funcOps[i++];
+    }
+
+    return functions;
 }
 
 // runs the program
@@ -23,12 +75,17 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
 
     int numOfFuncs = 1;
     
-    Function ** functions = (Function **)malloc(sizeof(Function *) * numOfFuncs);
+    Function ** functions = initializeFunctions(funcOps);
 
     int ip = 0;
     int sp = 0;
+    int rp = 0;
     int stack[10];
-    int local[5];
+    int cf = 0;
+    Return ** retStack = (Return **)malloc(sizeof(Return *) * 5);
+
+    for (int i = 0; i < 5; i++)
+        retStack[i] = (Return *)malloc(sizeof(Return));
 
     // main "CPU", continues going until HALT is reached
     while (opCodes[ip] != HALT)
@@ -86,7 +143,7 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
                 i[2] = opCodes[ip++];
                 i[3] = opCodes[ip++];
 
-                local[bytesToInt(i)] = stack[--sp];
+                functions[cf]->locals[bytesToInt(i)] = stack[--sp];
                 break;
             case (LOAD):
                 i[4];
@@ -95,9 +152,11 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
                 i[2] = opCodes[ip++];
                 i[3] = opCodes[ip++];
 
-                stack[sp++] = local[bytesToInt(i)];
+                stack[sp++] = functions[cf]->locals[bytesToInt(i)];
                 break;
             case (RET):
+                ip = retStack[--rp]->address;
+                cf = retStack[--rp]->function;
                 break;
             case (PRINT):
                 printf("%d\n", stack[--sp]);
@@ -111,6 +170,12 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
                 i[2] = opCodes[ip++];
                 i[3] = opCodes[ip++];
 
+                retStack[rp++]->function = cf;
+                retStack[rp++]->address = ip;
+
+                cf = bytesToInt(i);
+
+                ip = functions[bytesToInt(i)]->startAddress;
                 break;
         }
 

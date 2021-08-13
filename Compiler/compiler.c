@@ -156,13 +156,14 @@ void compileBytecode(ProgramNode * programNode)
         // gets the current function node
         FunctionNode * cur = programNode->nodes[i];
 
-        printf("func name: %s\n", cur->name);
-
         // Sets the address to the current program count (start of function opcodes)
         cur->address = bFile->programCount;
 
         // adds the function to the function table
         addFunction(bFile, cur);
+
+        for (int j = 0; j < cur->params; j++)
+            addOpAndInt(bFile, STORE, j);
 
         // loop through all expression nodes
         for (int j = 0; j < cur->count; j++)
