@@ -22,6 +22,7 @@
 #define IDIV '\x13'
 #define FDIV '\x14'
 #define CALL '\x15'
+#define INPUT '\x16'
 
 #define LISUB "ISUB"
 #define LIMUL "IMUL"
@@ -45,6 +46,7 @@
 #define LPARAMS "Params="
 #define LLOCALS "Locals="
 #define LCALL "CALL"
+#define LINPUT "INPUT"
 
 
 

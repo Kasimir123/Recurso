@@ -5,3 +5,4 @@
 int fileSize;
 unsigned char * fileData;
 FunctionNode * curFunction;
+ProgramNode * program;

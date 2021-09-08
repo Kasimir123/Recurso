@@ -1,0 +1,19 @@
+int x = 10;
+int y = 2;
+
+int multiplication(int x, int y)
+{
+    int divide(int a, int b)
+    {
+        int z = a / b;
+        return z;
+    }
+    
+    return x * y;
+}
+
+int z = multiplication(x,y);
+int a = divide(x,y);
+
+print(z);
+print(a);

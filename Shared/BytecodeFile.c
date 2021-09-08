@@ -266,6 +266,9 @@ void printProgramData(BytecodeFile *bFile)
             toInt[3] = bFile->programData[i++];
             printf("%s %d\n", LCALL, bytesToInt(toInt));
             break;
+        case (INPUT):
+            printf("%s\n", LINPUT);
+            break;
         }
     }
 }

@@ -18,30 +18,30 @@ char isEndNode(void * node)
 }
 
 // Takes a node and converts it into bytecode
-void nodeToBytecode(ExpressionNode * node, List * locals)
+void nodeToBytecode(char * root, List * locals)
 {
     // If it is a local variable then we load the value
-    if (getElement(locals, node->root) != -1)
+    if (getElement(locals, root) != -1)
     {
-        addOpAndInt(bFile, LOAD, getElement(locals, node->root));
+        addOpAndInt(bFile, LOAD, getElement(locals, root));
     }
     // else if it is addition
-    else if (!strcmp(node->root, "+"))
+    else if (!strcmp(root, "+"))
     {
         addOp(bFile, IADD);
     }
     // else if it is subtraction
-    else if (!strcmp(node->root, "-"))
+    else if (!strcmp(root, "-"))
     {
         addOp(bFile, ISUB);
     }
     // else if it is multiplication
-    else if (!strcmp(node->root, "*"))
+    else if (!strcmp(root, "*"))
     {
         addOp(bFile, IMUL);
     }
     // else if it is division
-    else if (!strcmp(node->root, "/"))
+    else if (!strcmp(root, "/"))
     {
         addOp(bFile, IDIV);
     }
@@ -49,7 +49,7 @@ void nodeToBytecode(ExpressionNode * node, List * locals)
     // currently only supports ints
     else 
     {
-        addOpAndInt(bFile, ICONST, atoi(node->root));
+        addOpAndInt(bFile, ICONST, atoi(root));
     }
 }
 
@@ -63,7 +63,7 @@ void processExpressions(ExpressionNode * node, List * locals)
         if (isEndNode((void *)(node)))
         {
             // we convert the node to bytecode
-            nodeToBytecode(node, locals);
+            nodeToBytecode(node->root, locals);
         }
         // if not an end node
         else
@@ -82,10 +82,10 @@ void processExpressions(ExpressionNode * node, List * locals)
         if (node->right != NULL) processExpressions(node->right, locals);
 
         // if the left node is not null we want to convert it to bytecode
-        if (node->left != NULL) nodeToBytecode(node->left, locals);
+        if (node->left != NULL) nodeToBytecode(node->left->root, locals);
 
         // convert the root node to bytecode
-        nodeToBytecode(node, locals);
+        nodeToBytecode(node->root, locals);
 
         // add the print opcode
         addOp(bFile, PRINT);
@@ -96,28 +96,37 @@ void processExpressions(ExpressionNode * node, List * locals)
         if (node->right != NULL) processExpressions(node->right, locals);
 
         // if the left node is not null we want to convert it to bytecode
-        if (node->left != NULL) nodeToBytecode(node->left, locals);
+        if (node->left != NULL) nodeToBytecode(node->left->root, locals);
 
         // convert the root node to bytecode
-        nodeToBytecode(node, locals);
+        nodeToBytecode(node->root, locals);
 
         
         addOp(bFile, RET);
     }
-    else if (node->left && getElement(funcNames, node->left->root) != -1)
+    else if (node->specialType == INPUTTYPE)
     {
-        // if there are values to the right we will want to process them
-        if (node->right != NULL) processExpressions(node->right, locals);
+        addOp(bFile, INPUT);
 
-        nodeToBytecode(node, locals);
+        addOpAndInt(bFile, STORE, getElement(locals, node->root));
+    }
+    else if (node && getElement(funcNames, node->root) != -1)
+    {
+        // // if there are values to the right we will want to process them
+        // if (node->right != NULL) processExpressions(node->right, locals);
 
-        addOpAndInt(bFile, CALL, getElement(funcNames, node->left->root));
+        // nodeToBytecode(node->root, locals);
+
+        for (int i = 0; i < node->params->count; i++)
+            nodeToBytecode(node->params->list[i], locals);
+
+        addOpAndInt(bFile, CALL, getElement(funcNames, node->root));
     }
     // else if it is an end node
     else if (isEndNode((void *)(node)))
     {
         // turn the node to bytecode
-        nodeToBytecode(node, locals);
+        nodeToBytecode(node->root, locals);
     }
     // if none of the above
     else
@@ -126,10 +135,10 @@ void processExpressions(ExpressionNode * node, List * locals)
         processExpressions(node->right, locals);
 
         // turn left node to bytecode
-        nodeToBytecode(node->left, locals);
+        nodeToBytecode(node->left->root, locals);
 
         // turn right node to bytecode
-        nodeToBytecode(node, locals);
+        nodeToBytecode(node->root, locals);
     }
 }
 
@@ -163,7 +172,7 @@ void compileBytecode(ProgramNode * programNode)
         addFunction(bFile, cur);
 
         for (int j = 0; j < cur->params; j++)
-            addOpAndInt(bFile, STORE, j);
+            addOpAndInt(bFile, STORE, cur->params - j - 1);
 
         // loop through all expression nodes
         for (int j = 0; j < cur->count; j++)

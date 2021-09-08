@@ -7,6 +7,8 @@
 #define NOSPECIAL 0
 #define PRINTTYPE 1
 #define RETURNTYPE 2
+#define INPUTTYPE 3
+#define FUNCTIONTYPE 4
 
 
 typedef struct ProgramNode ProgramNode;
@@ -72,6 +74,8 @@ struct ExpressionNode {
 
     // right node
     ExpressionNode * right;
+
+    List * params;
 
 };
 

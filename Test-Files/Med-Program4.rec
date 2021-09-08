@@ -1,0 +1,19 @@
+int x = 10;
+int y = 2;
+
+int multiplication(int x, int y, int z)
+{
+    return x * y * z;
+}
+
+int z = multiplication(x,y,2);
+
+print(z);
+
+z = multiplication(x,y,10);
+
+print(z);
+
+z = multiplication(x,y,100);
+
+print(z);

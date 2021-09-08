@@ -6,23 +6,36 @@ void printExpressionNode(ExpressionNode * node)
 
     if (node->specialType == PRINTTYPE) fprintf(stdout, "print ");
     if (node->specialType == RETURNTYPE) fprintf(stdout, "return ");
+    if (node->specialType == INPUTTYPE) fprintf(stdout, "input ");
 
-    // If left and right nodes are null then print root
-    if (node->left == NULL && node->right == NULL) fprintf(stdout, "%s ", node->root);
-    // else
-    else 
+    if (node->specialType == FUNCTIONTYPE)
     {
-        // print root
-        fprintf(stdout, "( %s ", node->root);
+        fprintf(stdout, "%s: ", node->root);
+        for (int i = 0; i < node->params->count; i++)
+        {
+            fprintf(stdout, "%s ", node->params->list[i]);
+        }
+        fprintf(stdout, "\n");
+    }
+    else
+    {
+        // If left and right nodes are null then print root
+        if (node->left == NULL && node->right == NULL) fprintf(stdout, "%s ", node->root);
+        // else
+        else 
+        {
+            // print root
+            fprintf(stdout, "( %s ", node->root);
 
-        // print left node
-        printExpressionNode(node->left);
+            // print left node
+            printExpressionNode(node->left);
 
-        // print right node
-        printExpressionNode(node->right);
+            // print right node
+            printExpressionNode(node->right);
 
-        // print closing )
-        fprintf(stdout, ") ");
+            // print closing )
+            fprintf(stdout, ") ");
+        }
     }
 }
 

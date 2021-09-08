@@ -177,6 +177,12 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
 
                 ip = functions[bytesToInt(i)]->startAddress;
                 break;
+            case (INPUT):
+                ;
+                int inpt;
+                scanf("%d", &inpt);
+                stack[sp++] = inpt;
+                break;
         }
 
     }
