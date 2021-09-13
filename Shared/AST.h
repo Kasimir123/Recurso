@@ -4,6 +4,12 @@
 #include "list.h"
 
 #define EXPRESSIONNODE 'e'
+#define NOSPECIAL 0
+#define PRINTTYPE 1
+#define RETURNTYPE 2
+#define INPUTTYPE 3
+#define FUNCTIONTYPE 4
+
 
 typedef struct ProgramNode ProgramNode;
 
@@ -55,7 +61,7 @@ struct ExpressionNode {
     // type of node this is
     char nodeType;
 
-    char isPrint;
+    char specialType;
 
     // root data
     char * root;
@@ -68,6 +74,8 @@ struct ExpressionNode {
 
     // right node
     ExpressionNode * right;
+
+    List * params;
 
 };
 
@@ -101,6 +109,8 @@ struct FunctionNode {
 
     // all of the nodes in the program
     void * * nodes;
+
+    List * patternMatches;
 
 };
 

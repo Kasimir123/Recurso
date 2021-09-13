@@ -1,0 +1,37 @@
+int x = 10;
+int y = 2;
+
+int prettyPrint(int x, int y, int z)
+{
+    print(x);
+    print(y);
+    print(z);
+    return 0;
+}
+
+int prettyPrint2(int x, int y, int z, int a, int b, int c)
+{
+    print(x);
+    print(y);
+    print(z);
+    print(a);
+    print(b);
+    print(c);
+    return 0;
+}
+
+int prettyPrint3(int x, int y, int z, int a, int b, int c, int d)
+{
+    print(x);
+    print(y);
+    print(z);
+    print(a);
+    print(b);
+    print(c);
+    print(d);
+    return 0;
+}
+
+prettyPrint(x,y,4);
+prettyPrint2(1,2,3,4,5,6);
+prettyPrint3(1,2,3,4,5,6,7);

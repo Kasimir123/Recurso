@@ -1,0 +1,8 @@
+int x = 1 + 2;
+print(x);
+x = x - 2;
+print(x);
+x = x * 4;
+print(x);
+x = x / 2;
+print(x);

@@ -3,7 +3,21 @@
 typedef struct Function
 {
     int startAddress;
-    void ** locals;
+
+    int ** locals;
+
+    int localsCap;
+
+    int localsCount;
+
+    int functionCount;
+
 } Function;
 
-void runProgram(unsigned char * opCodes, int length);
+typedef struct Return
+{
+    int address;
+    int function;
+} Return;
+
+void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length);

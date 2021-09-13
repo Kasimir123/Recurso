@@ -1,0 +1,14 @@
+int x;
+int y = 10;
+
+input x;
+
+int mult(int x, int y)
+{
+    return x * y;
+}
+
+print(x);
+print(y);
+int z = mult(x, y);
+print(z);

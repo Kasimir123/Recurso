@@ -1,10 +1,10 @@
 #include "BytecodeFile.h"
 
 // initializes the bytecode file
-BytecodeFile * initBytecodeFile()
+BytecodeFile *initBytecodeFile()
 {
     // mallocs the bytecode file
-    BytecodeFile * bFile = (BytecodeFile *)malloc(sizeof(BytecodeFile));
+    BytecodeFile *bFile = (BytecodeFile *)malloc(sizeof(BytecodeFile));
 
     // sets capacity
     bFile->programCapacity = 1024;
@@ -20,10 +20,10 @@ BytecodeFile * initBytecodeFile()
 }
 
 // turns a function node into bytes
-unsigned char * functionNodeToChars(FunctionNode * function)
+unsigned char *functionNodeToChars(FunctionNode *function)
 {
     // malloc space for the bytes, gets size from: .name.44
-    unsigned char * functionBytes = (char *)malloc(sizeof(unsigned char) * (function->nameLen + 10));
+    unsigned char *functionBytes = (char *)malloc(sizeof(unsigned char) * (function->nameLen + 10));
 
     // gets current position
     int cur = 0;
@@ -39,8 +39,8 @@ unsigned char * functionNodeToChars(FunctionNode * function)
     functionBytes[cur++] = FUNCINFO;
 
     // gets the bytes for locals and address from int
-    unsigned char * locals = intToBytes(function->locals->count);
-    unsigned char * address = intToBytes(function->address);
+    unsigned char *locals = intToBytes(function->locals->count);
+    unsigned char *address = intToBytes(function->address);
 
     // sets bytes
     functionBytes[cur++] = locals[0];
@@ -55,11 +55,10 @@ unsigned char * functionNodeToChars(FunctionNode * function)
 
     // return bytes
     return functionBytes;
-    
 }
 
 // adds the function to the bytecode file
-void addFunction(BytecodeFile * bFile, FunctionNode * function)
+void addFunction(BytecodeFile *bFile, FunctionNode *function)
 {
     // checks if we need to reallocate for the space needed
     if (bFile->functionCount + function->nameLen + 11 >= bFile->functionCapacity)
@@ -72,7 +71,7 @@ void addFunction(BytecodeFile * bFile, FunctionNode * function)
     }
 
     // Gets the bytes representing the function
-    unsigned char * functionData = functionNodeToChars(function);
+    unsigned char *functionData = functionNodeToChars(function);
 
     // copies the data into the file
     for (int i = 0; i < function->nameLen + 10; i++)
@@ -83,7 +82,7 @@ void addFunction(BytecodeFile * bFile, FunctionNode * function)
 }
 
 // Add opcode to the file
-void addOp(BytecodeFile * bFile, unsigned char op)
+void addOp(BytecodeFile *bFile, unsigned char op)
 {
     // check if we need to reallocate and allocate if needed
     if (bFile->programCount + 2 >= bFile->programCapacity)
@@ -98,7 +97,7 @@ void addOp(BytecodeFile * bFile, unsigned char op)
 }
 
 // Add several opcodes
-void addOps(BytecodeFile * bFile, unsigned char * ops, int size)
+void addOps(BytecodeFile *bFile, unsigned char *ops, int size)
 {
     // check if we need to reallocate and allocate if needed
     if (bFile->programCount + size + 1 >= bFile->programCapacity)
@@ -116,13 +115,13 @@ void addOps(BytecodeFile * bFile, unsigned char * ops, int size)
 }
 
 // add an opcode and an int
-void addOpAndInt(BytecodeFile * bFile, unsigned char op, int x)
+void addOpAndInt(BytecodeFile *bFile, unsigned char op, int x)
 {
     // initialize opcodes
     unsigned char ops[5];
 
     // get the bytes representing the int
-    unsigned char * element = intToBytes(x);
+    unsigned char *element = intToBytes(x);
 
     // copy the ops
     ops[0] = op;
@@ -136,59 +135,55 @@ void addOpAndInt(BytecodeFile * bFile, unsigned char op, int x)
 }
 
 // prints the function data
-void printfunctionData(BytecodeFile * bFile)
+void printfunctionData(BytecodeFile *bFile)
 {
     int i = 0;
+    unsigned char op = bFile->functionData[i++];
 
     // loop through all the files
-    while (i < bFile->functionCount)
+    while (op == FUNC)
     {
         // declare and intialize values
-        unsigned char op = bFile->functionData[i++];
+
         unsigned char params[4];
         unsigned char locals[4];
         unsigned char address[4];
+        // print .
+        printf(".");
 
-        // if the operand is Func
-        if (op == FUNC)
+        // get next opcode
+        op = bFile->functionData[i++];
+
+        // while not func info
+        while (op != FUNCINFO)
         {
-            // print .
-            printf(".");
-
-            // get next opcode
-            op = bFile->functionData[i++];
-
-            // while not func info 
-            while (op != FUNCINFO)
-            {
-                // print out function name
-                printf("%c", op);
-                op = bFile->functionData[i++];
-            }
-
-            // get local count
-            locals[0] = bFile->functionData[i++];
-            locals[1] = bFile->functionData[i++];
-            locals[2] = bFile->functionData[i++];
-            locals[3] = bFile->functionData[i++];
-            
-            // get address
-            address[0] = bFile->functionData[i++];
-            address[1] = bFile->functionData[i++];
-            address[2] = bFile->functionData[i++];
-            address[3] = bFile->functionData[i++];
-
-            // print the rest of the information
-            printf(" locals=%d address=%d\n", bytesToInt(locals), bytesToInt(address));
-
-            // get the next opcode
+            // print out function name
+            printf("%c", op);
             op = bFile->functionData[i++];
         }
+
+        // get local count
+        locals[0] = bFile->functionData[i++];
+        locals[1] = bFile->functionData[i++];
+        locals[2] = bFile->functionData[i++];
+        locals[3] = bFile->functionData[i++];
+
+        // get address
+        address[0] = bFile->functionData[i++];
+        address[1] = bFile->functionData[i++];
+        address[2] = bFile->functionData[i++];
+        address[3] = bFile->functionData[i++];
+
+        // print the rest of the information
+        printf(" locals=%d address=0x%04x\n", bytesToInt(locals), bytesToInt(address));
+
+        // get the next opcode
+        op = bFile->functionData[i++];
     }
 }
 
 // print out the program data
-void printProgramData(BytecodeFile * bFile)
+void printProgramData(BytecodeFile *bFile)
 {
     int i = 0;
 
@@ -202,71 +197,87 @@ void printProgramData(BytecodeFile * bFile)
         unsigned char toInt[4];
 
         // prints out the instruction address
-        printf("0x%04x ", i-1);
+        printf("0x%04x ", i - 1);
 
         // switch and do different things based on opcode
         switch (op)
         {
-            case (ISUB):
-                printf("%s\n", LISUB);
-                break;
-            case (IMUL):
-                printf("%s\n", LIMUL);
-                break;
-            case (IADD):
-                printf("%s\n", LIADD);
-                break;
-            case (FADD):
-                printf("%s\n", LFADD);
-                break;
-            case (ITOF):
-                break;
-            case (CCONST):
-                break;
-            case (ICONST):
-                
-                toInt[0] = bFile->programData[i++];
-                toInt[1] = bFile->programData[i++];
-                toInt[2] = bFile->programData[i++];
-                toInt[3] = bFile->programData[i++];
-                printf("%s %d\n", LICONST, bytesToInt(toInt));
-                break;
-            case (SCONST):
-                break;
-            case (FCONST):
-                break;
-            case (STORE):
-                toInt[0] = bFile->programData[i++];
-                toInt[1] = bFile->programData[i++];
-                toInt[2] = bFile->programData[i++];
-                toInt[3] = bFile->programData[i++];
-                printf("%s %d\n", LSTORE, bytesToInt(toInt));
-                break;
-            case (LOAD):
-                toInt[0] = bFile->programData[i++];
-                toInt[1] = bFile->programData[i++];
-                toInt[2] = bFile->programData[i++];
-                toInt[3] = bFile->programData[i++];
-                printf("%s %d\n", LLOAD, bytesToInt(toInt));
-                break;
-            case (HALT):
-                printf("%s\n", LHALT);
-                break;
-            case (RET):
-                printf("%s\n", LRET);
-                break;
-            case (PRINT):
-                printf("%s\n", LPRINT);
-                break;
-            case (POP):
-                printf("%s\n", LPOP);
-                break;
+        case (ISUB):
+            printf("%s\n", LISUB);
+            break;
+        case (IMUL):
+            printf("%s\n", LIMUL);
+            break;
+        case (IDIV):
+            printf("%s\n", LIDIV);
+            break;
+        case (IADD):
+            printf("%s\n", LIADD);
+            break;
+        case (FADD):
+            printf("%s\n", LFADD);
+            break;
+        case (ITOF):
+            break;
+        case (CCONST):
+            break;
+        case (ICONST):
+
+            toInt[0] = bFile->programData[i++];
+            toInt[1] = bFile->programData[i++];
+            toInt[2] = bFile->programData[i++];
+            toInt[3] = bFile->programData[i++];
+            printf("%s %d\n", LICONST, bytesToInt(toInt));
+            break;
+        case (SCONST):
+            break;
+        case (FCONST):
+            break;
+        case (STORE):
+            toInt[0] = bFile->programData[i++];
+            toInt[1] = bFile->programData[i++];
+            toInt[2] = bFile->programData[i++];
+            toInt[3] = bFile->programData[i++];
+            printf("%s %d\n", LSTORE, bytesToInt(toInt));
+            break;
+        case (LOAD):
+            toInt[0] = bFile->programData[i++];
+            toInt[1] = bFile->programData[i++];
+            toInt[2] = bFile->programData[i++];
+            toInt[3] = bFile->programData[i++];
+            printf("%s %d\n", LLOAD, bytesToInt(toInt));
+            break;
+        case (HALT):
+            printf("%s\n", LHALT);
+            break;
+        case (RET):
+            printf("%s\n", LRET);
+            break;
+        case (PRINT):
+            printf("%s\n", LPRINT);
+            break;
+        case (POP):
+            printf("%s\n", LPOP);
+            break;
+        case (CALL):
+            toInt[0] = bFile->programData[i++];
+            toInt[1] = bFile->programData[i++];
+            toInt[2] = bFile->programData[i++];
+            toInt[3] = bFile->programData[i++];
+            printf("%s %d\n", LCALL, bytesToInt(toInt));
+            break;
+        case (INPUT):
+            printf("%s\n", LINPUT);
+            break;
+        case (CMP):
+            printf("%s\n", LCMP);
+            break;
         }
     }
 }
 
 // prints the bytecode in pretty form
-void printAsLong(BytecodeFile * bFile)
+void printAsLong(BytecodeFile *bFile)
 {
     // prints the function data
     printfunctionData(bFile);

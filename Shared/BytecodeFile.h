@@ -19,6 +19,11 @@
 #define POP '\x10'
 #define FUNC '\x11'
 #define FUNCINFO '\x12'
+#define IDIV '\x13'
+#define FDIV '\x14'
+#define CALL '\x15'
+#define INPUT '\x16'
+#define CMP '\x17'
 
 #define LISUB "ISUB"
 #define LIMUL "IMUL"
@@ -26,6 +31,8 @@
 #define LFADD "FADD"
 #define LFSUB "FSUB"
 #define LITOF "ITOF"
+#define LIDIV "LDIV"
+#define LFDIV "LFDIV"
 #define LCCONST "CCONST"
 #define LICONST "ICONST"
 #define LSCONST "SCONST"
@@ -39,6 +46,10 @@
 #define LFUNC "."
 #define LPARAMS "Params="
 #define LLOCALS "Locals="
+#define LCALL "CALL"
+#define LINPUT "INPUT"
+#define LCMP "CMP"
+
 
 
 typedef struct BytecodeFile
