@@ -269,6 +269,9 @@ void printProgramData(BytecodeFile *bFile)
         case (INPUT):
             printf("%s\n", LINPUT);
             break;
+        case (CMP):
+            printf("%s\n", LCMP);
+            break;
         }
     }
 }

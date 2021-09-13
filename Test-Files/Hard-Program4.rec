@@ -1,0 +1,16 @@
+
+
+int factorial(int x)
+| 1, 1 |
+{
+    int a = x - 1;
+    int b = factorial(a);
+    
+    return x * b;
+}
+
+int inpt;
+input inpt;
+
+int z = factorial(inpt);
+print(z);

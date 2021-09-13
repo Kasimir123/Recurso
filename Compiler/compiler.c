@@ -174,6 +174,18 @@ void compileBytecode(ProgramNode * programNode)
         for (int j = 0; j < cur->params; j++)
             addOpAndInt(bFile, STORE, cur->params - j - 1);
 
+        if (cur->patternMatches->count > 0)
+        {
+            for (int j = 0; j < cur->patternMatches->count - 1; j++)
+            {
+                addOpAndInt(bFile, LOAD, j);
+                nodeToBytecode(cur->patternMatches->list[j], cur->locals);
+                addOp(bFile, CMP);
+            }
+            nodeToBytecode(cur->patternMatches->list[cur->patternMatches->count - 1], cur->locals);
+            addOp(bFile, RET);
+        }
+
         // loop through all expression nodes
         for (int j = 0; j < cur->count; j++)
 
@@ -184,7 +196,7 @@ void compileBytecode(ProgramNode * programNode)
     }
 
     // prints the bytecode file, for debugging
-    printAsLong(bFile);
+    // printAsLong(bFile);
 
     // runs the program
     runProgram(bFile->functionData, bFile->programData, bFile->programCount);

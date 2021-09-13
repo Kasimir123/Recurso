@@ -9,6 +9,39 @@ void printStack(int * stack)
     printf("]\n");
 }
 
+int getLocal(Function * func, int local)
+{
+    return func->locals[func->functionCount - 1][local];
+}
+
+void setLocal(Function * func, int local, int val)
+{
+    func->locals[func->functionCount - 1][local] = val;
+}
+
+void incrementFunction(Function * func)
+{
+    func->functionCount++;
+    func->localsCount++;
+    if (func->localsCount >= func->localsCap)
+    {
+        // Double capacity
+        func->localsCap *= 2;
+
+        // Reallocate the list
+        func->locals = (int **)realloc(func->locals, sizeof(int *) * func->localsCap);
+
+        for (int i = func->localsCount + 1; i < func->localsCap; i++)
+            func->locals[i] = (int *)malloc(sizeof(int) * 10);
+    }
+}
+
+void decrementFunction(Function* func)
+{
+    func->functionCount--;
+    func->localsCount--;
+}
+
 Function ** initializeFunctions(unsigned char * funcOps)
 {
 
@@ -57,6 +90,14 @@ Function ** initializeFunctions(unsigned char * funcOps)
 
         functions[count - 1] = (Function *)malloc(sizeof(Function));
         functions[count - 1]->startAddress = bytesToInt(address);
+        functions[count - 1]->localsCount = 0;
+        functions[count - 1]->localsCap = 16;
+        functions[count - 1]->functionCount = ((count - 1 == 0) ? 1 : 0);
+        functions[count - 1]->locals = (int **)malloc(sizeof(int *) * functions[count - 1]->localsCap);
+
+        for (int i = 0; i < functions[count - 1]->localsCap; i++)
+            functions[count - 1]->locals[i] = (int *)malloc(sizeof(int) * 10);
+
         count++;
 
         // get the next opcode
@@ -70,21 +111,18 @@ Function ** initializeFunctions(unsigned char * funcOps)
 void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
 {
     // for debugging
-    printf("\nProgram Runtime:\n\n");
-
-
-    int numOfFuncs = 1;
+    // printf("\nProgram Runtime:\n\n");
     
     Function ** functions = initializeFunctions(funcOps);
 
     int ip = 0;
     int sp = 0;
     int rp = 0;
-    int stack[10];
+    int stack[10000];
     int cf = 0;
-    Return ** retStack = (Return **)malloc(sizeof(Return *) * 5);
+    Return ** retStack = (Return **)malloc(sizeof(Return *) * 100);
 
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 100; i++)
         retStack[i] = (Return *)malloc(sizeof(Return));
 
     // main "CPU", continues going until HALT is reached
@@ -143,7 +181,7 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
                 i[2] = opCodes[ip++];
                 i[3] = opCodes[ip++];
 
-                functions[cf]->locals[bytesToInt(i)] = stack[--sp];
+                setLocal(functions[cf], bytesToInt(i), stack[--sp]);
                 break;
             case (LOAD):
                 i[4];
@@ -152,9 +190,10 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
                 i[2] = opCodes[ip++];
                 i[3] = opCodes[ip++];
 
-                stack[sp++] = functions[cf]->locals[bytesToInt(i)];
+                stack[sp++] = getLocal(functions[cf], bytesToInt(i));
                 break;
             case (RET):
+                decrementFunction(functions[cf]);
                 ip = retStack[--rp]->address;
                 cf = retStack[--rp]->function;
                 break;
@@ -175,13 +214,25 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
 
                 cf = bytesToInt(i);
 
-                ip = functions[bytesToInt(i)]->startAddress;
+                ip = functions[cf]->startAddress;
+                incrementFunction(functions[cf]);
                 break;
             case (INPUT):
                 ;
                 int inpt;
                 scanf("%d", &inpt);
                 stack[sp++] = inpt;
+                break;
+            case (CMP):
+                a = stack[--sp];
+                b = stack[--sp];
+                if (a != b)
+                {
+                    do {
+                        op = opCodes[ip++];
+                    }
+                    while (op != RET);
+                }
                 break;
         }
 

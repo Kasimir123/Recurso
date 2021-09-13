@@ -23,6 +23,7 @@
 #define FDIV '\x14'
 #define CALL '\x15'
 #define INPUT '\x16'
+#define CMP '\x17'
 
 #define LISUB "ISUB"
 #define LIMUL "IMUL"
@@ -47,6 +48,7 @@
 #define LLOCALS "Locals="
 #define LCALL "CALL"
 #define LINPUT "INPUT"
+#define LCMP "CMP"
 
 
 

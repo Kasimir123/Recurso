@@ -1,0 +1,12 @@
+
+
+int checks(int x)
+| 0, 0 |
+{
+    int a = x - 1;
+    print(x);
+    checks(a);
+    return 0;
+}
+
+checks(10);

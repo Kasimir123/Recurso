@@ -3,7 +3,15 @@
 typedef struct Function
 {
     int startAddress;
-    int locals[10];
+
+    int ** locals;
+
+    int localsCap;
+
+    int localsCount;
+
+    int functionCount;
+
 } Function;
 
 typedef struct Return

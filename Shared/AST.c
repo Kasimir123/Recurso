@@ -73,6 +73,8 @@ FunctionNode * initFunctionNode(char * name)
     // sets the locals list, this may end up getting split into the different types
     functionNode->locals = initList();
 
+    functionNode->patternMatches = initList();
+
     // Capacity
     functionNode->capacity = 5;
     

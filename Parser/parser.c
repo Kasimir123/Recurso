@@ -238,7 +238,6 @@ ExpressionNode *nextExpression(unsigned char *data, int size)
 
                     while (!hasNextToken(statement, size))
                     {
-                        printf("prams: %s\n", previewNextToken(statement, size));
                         addElement(cur->params, nextToken(&statement, &size));
                     }
 
@@ -272,7 +271,6 @@ ExpressionNode *nextExpression(unsigned char *data, int size)
 
                     while (!hasNextToken(statement, size))
                     {
-                        printf("prams: %s\n", previewNextToken(statement, size));
                         addElement(cur->params, nextToken(&statement, &size));
                     }
 
@@ -322,7 +320,6 @@ ExpressionNode *nextExpression(unsigned char *data, int size)
 
                 while (!hasNextToken(statement, size) && strcmp(previewNextToken(statement, size), ";"))
                 {
-                    printf("prams: %s\n", previewNextToken(statement, size));
                     addElement(cur->params, nextToken(&statement, &size));
                 }
 
@@ -496,14 +493,26 @@ void parseFunction(ProgramNode *program, unsigned char **curPos)
 
                 while (strcmp(previewNextToken(*curPos, statementSize), "{"))
                 {
+                    if (!strcmp(previewNextToken(*curPos, statementSize), "|")) break;
                     unsigned char *paramType = nextToken(curPos, &statementSize);
                     unsigned char *param = nextToken(curPos, &statementSize);
                     addElement(curFunction->locals, param);
                 }
 
-                free(nextToken(curPos, &statementSize));
-
                 curFunction->params = curFunction->locals->count;
+
+                if (!strcmp(previewNextToken(*curPos, statementSize), "|"))
+                {
+                    free(nextToken(curPos, &statementSize));
+
+                    while (strcmp(previewNextToken(*curPos, statementSize), "|"))
+                    {
+                        addElement(curFunction->patternMatches, nextToken(curPos, &statementSize));
+                    }
+                    free(nextToken(curPos, &statementSize));
+                }
+
+                free(nextToken(curPos, &statementSize));
 
                 addElementToProgramNode(program, (void *)curFunction);
 
@@ -580,8 +589,8 @@ int main(int argc, char *argv[])
         // Read in the file data
         fileData = readFile(argv[1], &fileSize);
 
-        printf("\nProgram:\n\n");
-        printf("%s\n", fileData);
+        // printf("\nProgram:\n\n");
+        // printf("%s\n", fileData);
 
         // Make another pointer for positioning, allows us to free data afterwards
         unsigned char *curPos = fileData;
@@ -598,32 +607,39 @@ int main(int argc, char *argv[])
         // set the current function node
         curFunction = mainFunction;
 
-        printf("\nStatements:\n\n");
+        // printf("\nStatements:\n\n");
         parseFunction(program, &curPos);
 
-        // print things for debugging
-        printf("\nFunctions:\n\n");
-        for (int i = 0; i < program->count; i++)
-        {
-            FunctionNode *func = program->nodes[i];
-            printf("Name: %s\n", func->name);
+        // // print things for debugging
+        // printf("\nFunctions:\n\n");
+        // for (int i = 0; i < program->count; i++)
+        // {
+        //     FunctionNode *func = program->nodes[i];
+        //     printf("Name: %s\n", func->name);
 
-            printf("\nNodes:\n\n");
-            for (int j = 0; j < func->count; j++)
-            {
-                printExpressionNode(func->nodes[j]);
-                printf("\n");
-            }
-            printf("\nVariables:\n\n");
-            for (int j = 0; j < func->locals->count; j++)
-            {
-                printf("%s\n", func->locals->list[j]);
-            }
+        //     if (func->patternMatches->count > 0) printf("\nPattern:\n\n");
+        //     for (int j = 0; j < func->patternMatches->count; j++)
+        //     {
+        //         printf("%s ", func->patternMatches->list[j]);
+        //     }
+        //     printf("\n");
 
-            printf("\n");
-        }
+        //     printf("\nNodes:\n\n");
+        //     for (int j = 0; j < func->count; j++)
+        //     {
+        //         printExpressionNode(func->nodes[j]);
+        //         printf("\n");
+        //     }
+        //     printf("\nVariables:\n\n");
+        //     for (int j = 0; j < func->locals->count; j++)
+        //     {
+        //         printf("%s\n", func->locals->list[j]);
+        //     }
 
-        printf("\nBytecode:\n\n");
+        //     printf("\n");
+        // }
+
+        // printf("\nBytecode:\n\n");
 
         // compile the bytecode
         compileBytecode(program);

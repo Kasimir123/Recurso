@@ -110,6 +110,8 @@ struct FunctionNode {
     // all of the nodes in the program
     void * * nodes;
 
+    List * patternMatches;
+
 };
 
 enum ExpressionState {Start, First, Root, End};
