@@ -24,6 +24,10 @@
 #define CALL '\x15'
 #define INPUT '\x16'
 #define CMP '\x17'
+#define OR '\x18'
+#define AND '\x19'
+#define XOR '\x1A'
+#define NCMP '\x1B'
 
 #define LISUB "ISUB"
 #define LIMUL "IMUL"
@@ -49,6 +53,10 @@
 #define LCALL "CALL"
 #define LINPUT "INPUT"
 #define LCMP "CMP"
+#define LOR "OR"
+#define LAND "AND"
+#define LXOR "XOR"
+#define LNCMP "NCMP"
 
 
 

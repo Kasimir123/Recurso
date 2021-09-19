@@ -155,6 +155,21 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
                 b = stack[--sp];
                 stack[sp++] = a + b;
                 break;
+            case (OR):;
+                a = stack[--sp];
+                b = stack[--sp];
+                stack[sp++] = a | b;
+                break;
+            case (AND):;
+                a = stack[--sp];
+                b = stack[--sp];
+                stack[sp++] = a & b;
+                break;
+            case (XOR):;
+                a = stack[--sp];
+                b = stack[--sp];
+                stack[sp++] = a ^ b;
+                break;
             case (FADD):
                 break;
             case (ITOF):
@@ -227,6 +242,17 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
                 a = stack[--sp];
                 b = stack[--sp];
                 if (a != b)
+                {
+                    do {
+                        op = opCodes[ip++];
+                    }
+                    while (op != RET);
+                }
+                break;
+            case (NCMP):
+                a = stack[--sp];
+                b = stack[--sp];
+                if (a == b)
                 {
                     do {
                         op = opCodes[ip++];

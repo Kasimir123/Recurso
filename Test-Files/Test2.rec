@@ -1,0 +1,11 @@
+int checkIf5(int x)
+| !5, 0 |
+{
+    return 1;
+}
+
+int inpt;
+input inpt;
+
+int z = checkIf5(inpt);
+print(z);

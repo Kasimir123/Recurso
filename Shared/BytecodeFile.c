@@ -272,6 +272,18 @@ void printProgramData(BytecodeFile *bFile)
         case (CMP):
             printf("%s\n", LCMP);
             break;
+        case (NCMP):
+            printf("%s\n", LNCMP);
+            break;
+        case (OR):
+            printf("%s\n", LOR);
+            break;
+        case (AND):
+            printf("%s\n", LAND);
+            break;
+        case (XOR):
+            printf("%s\n", LXOR);
+            break;
         }
     }
 }

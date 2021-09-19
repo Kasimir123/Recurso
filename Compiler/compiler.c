@@ -20,6 +20,8 @@ char isEndNode(void * node)
 // Takes a node and converts it into bytecode
 void nodeToBytecode(char * root, List * locals)
 {
+    if (root[0] == '!') root++;
+
     // If it is a local variable then we load the value
     if (getElement(locals, root) != -1)
     {
@@ -44,6 +46,18 @@ void nodeToBytecode(char * root, List * locals)
     else if (!strcmp(root, "/"))
     {
         addOp(bFile, IDIV);
+    }
+    else if (!strcmp(root, "|"))
+    {
+        addOp(bFile, OR);
+    }
+    else if (!strcmp(root, "&"))
+    {
+        addOp(bFile, AND);
+    }
+    else if (!strcmp(root, "^"))
+    {
+        addOp(bFile, XOR);
     }
     // otherwise assume we are loading a constant
     // currently only supports ints
@@ -180,7 +194,8 @@ void compileBytecode(ProgramNode * programNode)
             {
                 addOpAndInt(bFile, LOAD, j);
                 nodeToBytecode(cur->patternMatches->list[j], cur->locals);
-                addOp(bFile, CMP);
+                if ((cur->patternMatches->list[j])[0] == '!') addOp(bFile, NCMP);
+                else addOp(bFile, CMP);
             }
             nodeToBytecode(cur->patternMatches->list[cur->patternMatches->count - 1], cur->locals);
             addOp(bFile, RET);
@@ -196,7 +211,7 @@ void compileBytecode(ProgramNode * programNode)
     }
 
     // prints the bytecode file, for debugging
-    // printAsLong(bFile);
+    printAsLong(bFile);
 
     // runs the program
     runProgram(bFile->functionData, bFile->programData, bFile->programCount);
