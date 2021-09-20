@@ -11,6 +11,6 @@ int fib(int x)
     return a + b;
 }
 
-int a = fib(15);
+int a = fib(25);
 
 print(a);
