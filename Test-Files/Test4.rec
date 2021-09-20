@@ -1,0 +1,12 @@
+int count(int x)
+| 2000, 0 |
+{
+    print(x);
+
+    int a = x + 1;
+    count(a);
+
+    return 0;
+}
+
+count(1);

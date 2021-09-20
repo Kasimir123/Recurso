@@ -31,7 +31,7 @@ void incrementFunction(Function * func)
         // Reallocate the list
         func->locals = (int **)realloc(func->locals, sizeof(int *) * func->localsCap);
 
-        for (int i = func->localsCount + 1; i < func->localsCap; i++)
+        for (int i = func->localsCount; i < func->localsCap; i++)
             func->locals[i] = (int *)malloc(sizeof(int) * 10);
     }
 }
@@ -209,8 +209,9 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
                 break;
             case (RET):
                 decrementFunction(functions[cf]);
+
                 ip = retStack[--rp]->address;
-                cf = retStack[--rp]->function;
+                cf = retStack[rp]->function;
                 break;
             case (PRINT):
                 printf("%d\n", stack[--sp]);
@@ -224,8 +225,10 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
                 i[2] = opCodes[ip++];
                 i[3] = opCodes[ip++];
 
-                retStack[rp++]->function = cf;
-                retStack[rp++]->address = ip;
+                retStack[rp]->function = cf;
+                retStack[rp]->address = ip;
+
+                rp++;
 
                 cf = bytesToInt(i);
 
