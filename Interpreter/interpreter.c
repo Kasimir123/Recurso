@@ -260,6 +260,28 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
                     while (op != RET);
                 }
                 break;
+            case (LTCMP):
+                a = stack[--sp];
+                b = stack[--sp];
+                if (a < b)
+                {
+                    do {
+                        op = opCodes[ip++];
+                    }
+                    while (op != RET);
+                }
+                break;
+            case (GTCMP):
+                a = stack[--sp];
+                b = stack[--sp];
+                if (a > b)
+                {
+                    do {
+                        op = opCodes[ip++];
+                    }
+                    while (op != RET);
+                }
+                break;
         }
 
     }

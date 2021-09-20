@@ -1,7 +1,7 @@
 #include "BytecodeFile.h"
 
 // initializes the bytecode file
-BytecodeFile *initBytecodeFile()
+BytecodeFile * initBytecodeFile()
 {
     // mallocs the bytecode file
     BytecodeFile *bFile = (BytecodeFile *)malloc(sizeof(BytecodeFile));
@@ -17,6 +17,51 @@ BytecodeFile *initBytecodeFile()
     // mallocs data
     bFile->programData = (unsigned char *)malloc(sizeof(unsigned char) * bFile->programCapacity);
     bFile->functionData = (unsigned char *)malloc(sizeof(unsigned char) * bFile->functionCapacity);
+}
+
+BytecodeFile * initBytecodeFileWithFile(char * filename)
+{
+    // mallocs the bytecode file
+    BytecodeFile *bFile = (BytecodeFile *)malloc(sizeof(BytecodeFile));
+
+    FILE * fd = fopen(filename, "rb");
+
+    fread(&(bFile->functionCount), sizeof(int), 1, fd);
+
+    bFile->functionData = (unsigned char *)malloc(sizeof(unsigned char) * (bFile->functionCount + 1));
+
+    fread(bFile->functionData, sizeof(char), bFile->functionCount, fd);
+
+    bFile->programCapacity = 1024;
+
+    bFile->programData = (unsigned char *)malloc(sizeof(unsigned char) * (bFile->programCapacity + 1));
+
+    int readCount = fread(bFile->programData, sizeof(char), 1024, fd);
+
+    while (readCount == 1024)
+    {
+        bFile->programCount += readCount;
+        bFile->programCapacity += 1024;
+        bFile->functionData = (unsigned char *)realloc(bFile->functionData, sizeof(unsigned char) * (bFile->functionCapacity + 1));
+        readCount = fread(bFile->programData, sizeof(char), 1024, fd);
+    }
+
+    bFile->programCount += readCount;
+
+    fclose(fd);
+
+    return bFile;
+}
+
+void saveBytecode(BytecodeFile * bFile, char * filename)
+{
+    FILE * fd = fopen(filename, "wb");
+
+    fwrite(&(bFile->functionCount), sizeof(int), 1, fd);
+    fwrite(bFile->functionData, sizeof(char), bFile->functionCount, fd);
+    fwrite(bFile->programData, sizeof(char), bFile->programCount, fd);
+
+    fclose(fd);
 }
 
 // turns a function node into bytes
@@ -274,6 +319,12 @@ void printProgramData(BytecodeFile *bFile)
             break;
         case (NCMP):
             printf("%s\n", LNCMP);
+            break;
+        case (LTCMP):
+            printf("%s\n", LLTCMP);
+            break;
+        case (GTCMP):
+            printf("%s\n", LGTCMP);
             break;
         case (OR):
             printf("%s\n", LOR);

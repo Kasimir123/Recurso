@@ -28,6 +28,8 @@
 #define AND '\x19'
 #define XOR '\x1A'
 #define NCMP '\x1B'
+#define LTCMP '\x1C'
+#define GTCMP '\x1D'
 
 #define LISUB "ISUB"
 #define LIMUL "IMUL"
@@ -57,6 +59,8 @@
 #define LAND "AND"
 #define LXOR "XOR"
 #define LNCMP "NCMP"
+#define LLTCMP "LTCMP"
+#define LGTCMP "GTCMP"
 
 
 
@@ -71,6 +75,8 @@ typedef struct BytecodeFile
 } BytecodeFile;
 
 BytecodeFile * initBytecodeFile();
+BytecodeFile * initBytecodeFileWithFile(char * filename);
+void saveBytecode(BytecodeFile * bFile, char * filename);
 void addFunction(BytecodeFile * bFile, FunctionNode * function);
 void addOp(BytecodeFile * bFile, unsigned char op);
 void addOps(BytecodeFile * bFile, unsigned char * ops, int size);

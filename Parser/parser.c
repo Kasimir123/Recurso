@@ -300,7 +300,6 @@ ExpressionNode *nextExpression(unsigned char *data, int size)
         // root state
         case Root:
 
-
             if (!checkIfFunctionName(&statement, &size))
             {
                 // set the right node to a new node
@@ -329,8 +328,8 @@ ExpressionNode *nextExpression(unsigned char *data, int size)
             else
             {
 
-            // Gets a token
-            // SECURITY - potential security problem here
+                // Gets a token
+                // SECURITY - potential security problem here
                 token = nextToken(&statement, &size);
                 // Checks if we have another token
                 if (!hasNextToken(statement, size))
@@ -493,7 +492,8 @@ void parseFunction(ProgramNode *program, unsigned char **curPos)
 
                 while (strcmp(previewNextToken(*curPos, statementSize), "{"))
                 {
-                    if (!strcmp(previewNextToken(*curPos, statementSize), "|")) break;
+                    if (!strcmp(previewNextToken(*curPos, statementSize), "|"))
+                        break;
                     unsigned char *paramType = nextToken(curPos, &statementSize);
                     unsigned char *param = nextToken(curPos, &statementSize);
                     addElement(curFunction->locals, param);
@@ -582,10 +582,17 @@ void parseFunction(ProgramNode *program, unsigned char **curPos)
 int main(int argc, char *argv[])
 {
 
-    // If we have a file path and that path contains .rec
-    if (argc == 2 && strstr(argv[1], ".rec"))
+    if (argc >= 2 && strstr(argv[1], ".recc"))
     {
+        BytecodeFile *bFile = initBytecodeFileWithFile(argv[1]);
 
+        printf("%d\n", bFile->programCount);
+
+        runProgram(bFile->functionData, bFile->programData, bFile->programCount);
+    }
+    // If we have a file path and that path contains .rec
+    else if (argc >= 2 && strstr(argv[1], ".rec"))
+    {
         // Read in the file data
         fileData = readFile(argv[1], &fileSize);
 
@@ -642,7 +649,7 @@ int main(int argc, char *argv[])
         // printf("\nBytecode:\n\n");
 
         // compile the bytecode
-        compileBytecode(program);
+        compileBytecode(program, ((argc == 4 && !strcmp(argv[2], "-s") ? argv[3] : (char *)"")));
 
         // free file data
         free(fileData);

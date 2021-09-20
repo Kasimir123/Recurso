@@ -1,0 +1,16 @@
+int fib(int x)
+| <1, x |
+{
+
+    int a = x - 1;
+    int b = x - 2;
+
+    a = fib(a);
+    b = fib(b);
+
+    return a + b;
+}
+
+int a = fib(15);
+
+print(a);

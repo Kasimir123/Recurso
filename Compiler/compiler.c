@@ -21,6 +21,8 @@ char isEndNode(void * node)
 void nodeToBytecode(char * root, List * locals)
 {
     if (root[0] == '!') root++;
+    if (root[0] == '<') root++;
+    if (root[0] == '>') root++;
 
     // If it is a local variable then we load the value
     if (getElement(locals, root) != -1)
@@ -157,8 +159,9 @@ void processExpressions(ExpressionNode * node, List * locals)
 }
 
 // Compiles the bytecode
-void compileBytecode(ProgramNode * programNode)
+void compileBytecode(ProgramNode * programNode, char * save)
 {
+
     // initialize the bytecode file
     bFile = initBytecodeFile();
 
@@ -195,6 +198,8 @@ void compileBytecode(ProgramNode * programNode)
                 addOpAndInt(bFile, LOAD, j);
                 nodeToBytecode(cur->patternMatches->list[j], cur->locals);
                 if ((cur->patternMatches->list[j])[0] == '!') addOp(bFile, NCMP);
+                else if ((cur->patternMatches->list[j])[0] == '<') addOp(bFile, LTCMP);
+                else if ((cur->patternMatches->list[j])[0] == '>') addOp(bFile, GTCMP);
                 else addOp(bFile, CMP);
             }
             nodeToBytecode(cur->patternMatches->list[cur->patternMatches->count - 1], cur->locals);
@@ -211,7 +216,9 @@ void compileBytecode(ProgramNode * programNode)
     }
 
     // prints the bytecode file, for debugging
-    printAsLong(bFile);
+    // printAsLong(bFile);
+
+    if (strcmp(save, "")) saveBytecode(bFile, save); 
 
     // runs the program
     runProgram(bFile->functionData, bFile->programData, bFile->programCount);
