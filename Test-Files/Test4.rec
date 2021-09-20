@@ -1,5 +1,5 @@
 int count(int x)
-| 2000, 0 |
+| 5000000, 0 |
 {
     print(x);
 
@@ -9,4 +9,4 @@ int count(int x)
     return 0;
 }
 
-count(1);
+count(0);

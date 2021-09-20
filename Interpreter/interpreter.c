@@ -120,9 +120,11 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
     int rp = 0;
     int stack[10000];
     int cf = 0;
-    Return ** retStack = (Return **)malloc(sizeof(Return *) * 100);
 
-    for (int i = 0; i < 100; i++)
+    int retCap = 64;
+    Return ** retStack = (Return **)malloc(sizeof(Return *) * retCap);
+
+    for (int i = 0; i < retCap; i++)
         retStack[i] = (Return *)malloc(sizeof(Return));
 
     // main "CPU", continues going until HALT is reached
@@ -224,6 +226,15 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
                 i[1] = opCodes[ip++];
                 i[2] = opCodes[ip++];
                 i[3] = opCodes[ip++];
+
+                if (rp >= retCap)
+                {
+                    retCap *= 2;
+                    retStack = (Return **)realloc(retStack, sizeof(Return *) * retCap);
+
+                    for (int j = rp; j < retCap; j++)
+                        retStack[j] = (Return *)malloc(sizeof(Return));
+                }
 
                 retStack[rp]->function = cf;
                 retStack[rp]->address = ip;
