@@ -15,6 +15,8 @@ char isEndNode(void * node)
         case EXPRESSIONNODE:
             return (((ExpressionNode *)node)->left == NULL && ((ExpressionNode *)node)->right == NULL);
     }
+
+    return 0;
 }
 
 // Takes a node and converts it into bytecode

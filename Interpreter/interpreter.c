@@ -56,7 +56,7 @@ Function ** initializeFunctions(unsigned char * funcOps)
     {
         // declare and intialize values
 
-        unsigned char params[4];
+        // unsigned char params[4];
         unsigned char locals[4];
         unsigned char address[4];
 
@@ -91,7 +91,7 @@ Function ** initializeFunctions(unsigned char * funcOps)
         functions[count - 1] = (Function *)malloc(sizeof(Function));
         functions[count - 1]->startAddress = bytesToInt(address);
         functions[count - 1]->localsCount = 0;
-        functions[count - 1]->localsCap = 16;
+        functions[count - 1]->localsCap = bytesToInt(locals);
         functions[count - 1]->functionCount = ((count - 1 == 0) ? 1 : 0);
         functions[count - 1]->locals = (int **)malloc(sizeof(int *) * functions[count - 1]->localsCap);
 
@@ -192,7 +192,6 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
             case (FCONST):
                 break;
             case (STORE):
-                i[4];
                 i[0] = opCodes[ip++];
                 i[1] = opCodes[ip++];
                 i[2] = opCodes[ip++];
@@ -201,7 +200,6 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
                 setLocal(functions[cf], bytesToInt(i), stack[--sp]);
                 break;
             case (LOAD):
-                i[4];
                 i[0] = opCodes[ip++];
                 i[1] = opCodes[ip++];
                 i[2] = opCodes[ip++];
@@ -221,7 +219,6 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
             case (POP):
                 break;
             case (CALL):
-                i[4];
                 i[0] = opCodes[ip++];
                 i[1] = opCodes[ip++];
                 i[2] = opCodes[ip++];

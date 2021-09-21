@@ -33,7 +33,7 @@ char hasNextToken(unsigned char *statement, int size)
 
     // if no space seperated, look for the semicolon
     if (!found || (int)(found - statement) > size)
-        found = (unsigned char *)strchr(statement, ';');
+        found = (unsigned char *)strchr((const char *)statement, ';');
 
     // get the space for the token
     int space = (int)(found - statement);
@@ -52,7 +52,7 @@ unsigned char *previewNextToken(unsigned char *statement, int size)
 
     // if no space seperated, look for the semicolon
     if (!found || (int)(found - statement) > size)
-        found = (unsigned char *)strchr(statement, ';');
+        found = (unsigned char *)strchr((const char *)statement, ';');
 
     // get the space for the token
     int space = (int)(found - statement);
@@ -70,9 +70,9 @@ unsigned char *previewNextToken(unsigned char *statement, int size)
     return token;
 }
 
-char isTokenVariable(unsigned char *token)
-{
-}
+// char isTokenVariable(unsigned char *token)
+// {
+// }
 
 // Gets the next token in the system
 unsigned char *nextToken(unsigned char **statement, int *size)
@@ -86,7 +86,7 @@ unsigned char *nextToken(unsigned char **statement, int *size)
 
     // if no space seperated, look for the semicolon
     if (!found || (int)(found - *statement) > *size)
-        found = (unsigned char *)strchr(*statement, ';');
+        found = (unsigned char *)strchr((const char *)*statement, ';');
 
     // get the space for the token
     int space = (int)(found - *statement);
@@ -119,13 +119,13 @@ void checkIfType(unsigned char **statement, int *size)
     unsigned char *token = previewNextToken(*statement, *size);
 
     // if int
-    if (!strcmp(token, "int"))
+    if (!strcmp((const char *)token, "int"))
     {
         // Go to next token
         free(nextToken(statement, size));
 
         // Adds the next token to the list
-        addElement(curFunction->locals, previewNextToken(*statement, *size));
+        addElement(curFunction->locals, (char *)previewNextToken(*statement, *size));
     }
 
     // free previewed token
@@ -141,7 +141,7 @@ int checkIfFunctionName(unsigned char **statement, int *size)
     for (int i = 0; i < program->count; i++)
     {
         FunctionNode *node = program->nodes[i];
-        if (!strcmp(token, node->name))
+        if (!strcmp((const char *)token, node->name))
             return 0;
     }
 
@@ -158,7 +158,7 @@ ExpressionNode *createEndNode(unsigned char *token)
     ExpressionNode *node = (ExpressionNode *)malloc(sizeof(ExpressionNode));
 
     // set the root information
-    node->root = token;
+    node->root = (char *)token;
 
     // Set left to null
     node->left = NULL;
@@ -182,7 +182,7 @@ ExpressionNode *nextExpression(unsigned char *data, int size)
     // printf("Expression Data: %s\n", data);
 
     // Get the statement size
-    int statementSize = size;
+    // int statementSize = size;
 
     // set the state to start
     enum ExpressionState state = Start;
@@ -230,7 +230,7 @@ ExpressionNode *nextExpression(unsigned char *data, int size)
 
                 if (!checkIfFunctionName(&statement, &size))
                 {
-                    cur->root = nextToken(&statement, &size);
+                    cur->root = (char *)nextToken(&statement, &size);
                     cur->left = NULL;
                     cur->right = NULL;
                     cur->params = initList();
@@ -238,7 +238,7 @@ ExpressionNode *nextExpression(unsigned char *data, int size)
 
                     while (!hasNextToken(statement, size))
                     {
-                        addElement(cur->params, nextToken(&statement, &size));
+                        addElement(cur->params, (char *)nextToken(&statement, &size));
                     }
 
                     // set state to end
@@ -263,7 +263,7 @@ ExpressionNode *nextExpression(unsigned char *data, int size)
 
                 if (!checkIfFunctionName(&statement, &size))
                 {
-                    cur->root = nextToken(&statement, &size);
+                    cur->root = (char *)nextToken(&statement, &size);
                     cur->left = NULL;
                     cur->right = NULL;
                     cur->params = initList();
@@ -271,7 +271,7 @@ ExpressionNode *nextExpression(unsigned char *data, int size)
 
                     while (!hasNextToken(statement, size))
                     {
-                        addElement(cur->params, nextToken(&statement, &size));
+                        addElement(cur->params, (char *)nextToken(&statement, &size));
                     }
 
                     // set state to end
@@ -281,7 +281,7 @@ ExpressionNode *nextExpression(unsigned char *data, int size)
                 {
                     // sets the root to the next token
                     // SECURITY - potential security problem here
-                    cur->root = nextToken(&statement, &size);
+                    cur->root = (char *)nextToken(&statement, &size);
 
                     // sets the state to root
                     state = Root;
@@ -311,15 +311,15 @@ ExpressionNode *nextExpression(unsigned char *data, int size)
                 // set node type
                 cur->nodeType = EXPRESSIONNODE;
 
-                cur->root = nextToken(&statement, &size);
+                cur->root = (char *)nextToken(&statement, &size);
                 cur->left = NULL;
                 cur->right = NULL;
                 cur->params = initList();
                 cur->specialType = FUNCTIONTYPE;
 
-                while (!hasNextToken(statement, size) && strcmp(previewNextToken(statement, size), ";"))
+                while (!hasNextToken(statement, size) && strcmp((const char *)previewNextToken(statement, size), ";"))
                 {
-                    addElement(cur->params, nextToken(&statement, &size));
+                    addElement(cur->params, (char *)nextToken(&statement, &size));
                 }
 
                 // set state to end
@@ -345,7 +345,7 @@ ExpressionNode *nextExpression(unsigned char *data, int size)
                     cur->nodeType = EXPRESSIONNODE;
 
                     // sets the root to the new token
-                    cur->root = nextToken(&statement, &size);
+                    cur->root = (char *)nextToken(&statement, &size);
 
                     // Sets left to the end node
                     cur->left = createEndNode(token);
@@ -360,6 +360,8 @@ ExpressionNode *nextExpression(unsigned char *data, int size)
                 }
             }
             break;
+        case End:
+            return node;
         }
     }
 
@@ -379,7 +381,7 @@ int nextStatement(unsigned char **data)
         (*data)++;
 
     // Get the next semicolon
-    unsigned char *found = (unsigned char *)strchr(*data, ';');
+    unsigned char *found = (unsigned char *)strchr((const char *)*data, ';');
 
     // Return distance to semicolon, if none then return -1
     return found ? (int)(found - *data) : -1;
@@ -407,19 +409,19 @@ char checkIfPrint(unsigned char *statement, int size)
 // Checks to see if the current statement is a return statement
 char checkIfReturn(unsigned char *statement, int size)
 {
-    return strcmp(previewNextToken(statement, size), "return");
+    return strcmp((const char *)previewNextToken(statement, size), "return");
 }
 
 // Checks to see if the current statement is a return statement
 char checkIfInput(unsigned char *statement, int size)
 {
-    return strcmp(previewNextToken(statement, size), "input");
+    return strcmp((const char *)previewNextToken(statement, size), "input");
 }
 
 // Gets the end of the next function
 int nextFunctionEnd(unsigned char *data)
 {
-    unsigned char *found = (unsigned char *)strchr(data, '}');
+    unsigned char *found = (unsigned char *)strchr((const char *)data, '}');
 
     return found ? (int)(found - data) : -1;
 }
@@ -430,15 +432,15 @@ char checkIfFunction(unsigned char *statement, int size)
     unsigned char *token = previewNextToken(statement, size);
 
     // if int
-    if (!strcmp(token, "int"))
+    if (!strcmp((const char *)token, "int"))
     {
         free(token);
-        unsigned char *nextStartFunction = (unsigned char *)strchr(statement, '{');
+        unsigned char *nextStartFunction = (unsigned char *)strchr((const char *)statement, '{');
 
         if (nextStartFunction == NULL)
             return 1;
 
-        unsigned char *nextSemiColon = (unsigned char *)strchr(statement, ';');
+        unsigned char *nextSemiColon = (unsigned char *)strchr((const char *)statement, ';');
 
         return ((int)(nextStartFunction - statement) > (int)(nextSemiColon - statement)) ? 1 : 0;
     }
@@ -484,30 +486,32 @@ void parseFunction(ProgramNode *program, unsigned char **curPos)
             {
                 FunctionNode *oldFunction = curFunction;
 
-                unsigned char *type = nextToken(curPos, &statementSize);
+                // unsigned char *type = nextToken(curPos, &statementSize);
+                nextToken(curPos, &statementSize);
 
                 unsigned char *name = nextToken(curPos, &statementSize);
 
-                curFunction = initFunctionNode(name);
+                curFunction = (FunctionNode *)initFunctionNode((char *)name);
 
-                while (strcmp(previewNextToken(*curPos, statementSize), "{"))
+                while (strcmp((const char *)previewNextToken(*curPos, statementSize), "{"))
                 {
-                    if (!strcmp(previewNextToken(*curPos, statementSize), "|"))
+                    if (!strcmp((const char *)previewNextToken(*curPos, statementSize), "|"))
                         break;
-                    unsigned char *paramType = nextToken(curPos, &statementSize);
+                    // unsigned char *paramType = nextToken(curPos, &statementSize);
+                    nextToken(curPos, &statementSize);
                     unsigned char *param = nextToken(curPos, &statementSize);
-                    addElement(curFunction->locals, param);
+                    addElement(curFunction->locals, (char *)param);
                 }
 
                 curFunction->params = curFunction->locals->count;
 
-                if (!strcmp(previewNextToken(*curPos, statementSize), "|"))
+                if (!strcmp((const char *)previewNextToken(*curPos, statementSize), "|"))
                 {
                     free(nextToken(curPos, &statementSize));
 
-                    while (strcmp(previewNextToken(*curPos, statementSize), "|"))
+                    while (strcmp((const char *)previewNextToken(*curPos, statementSize), "|"))
                     {
-                        addElement(curFunction->patternMatches, nextToken(curPos, &statementSize));
+                        addElement(curFunction->patternMatches, (char *)nextToken(curPos, &statementSize));
                     }
                     free(nextToken(curPos, &statementSize));
                 }
@@ -520,7 +524,7 @@ void parseFunction(ProgramNode *program, unsigned char **curPos)
 
                 curFunction = oldFunction;
 
-                *curPos = (unsigned char *)strchr(*curPos, '}') + 1;
+                *curPos = (unsigned char *)strchr((const char *)*curPos, '}') + 1;
 
                 node = NULL;
             }
@@ -546,7 +550,7 @@ void parseFunction(ProgramNode *program, unsigned char **curPos)
             else
             {
                 // removes the print statement bytes
-                char *withoutPrint = *curPos + 6;
+                char *withoutPrint = (char *)(*curPos + 6);
 
                 // gets the new statement size
                 int newSize = statementSize - 6;
@@ -558,7 +562,7 @@ void parseFunction(ProgramNode *program, unsigned char **curPos)
                 withoutPrint[newSize - 1] = ';';
 
                 // Gets the expression node
-                node = nextExpression(withoutPrint, newSize - 1);
+                node = nextExpression((unsigned char *)withoutPrint, newSize - 1);
 
                 // set is print to true
                 node->specialType = PRINTTYPE;

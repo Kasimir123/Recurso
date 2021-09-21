@@ -17,6 +17,8 @@ BytecodeFile * initBytecodeFile()
     // mallocs data
     bFile->programData = (unsigned char *)malloc(sizeof(unsigned char) * bFile->programCapacity);
     bFile->functionData = (unsigned char *)malloc(sizeof(unsigned char) * bFile->functionCapacity);
+
+    return bFile;
 }
 
 BytecodeFile * initBytecodeFileWithFile(char * filename)
@@ -68,7 +70,7 @@ void saveBytecode(BytecodeFile * bFile, char * filename)
 unsigned char *functionNodeToChars(FunctionNode *function)
 {
     // malloc space for the bytes, gets size from: .name.44
-    unsigned char *functionBytes = (char *)malloc(sizeof(unsigned char) * (function->nameLen + 10));
+    unsigned char *functionBytes = (unsigned char *)malloc(sizeof(unsigned char) * (function->nameLen + 10));
 
     // gets current position
     int cur = 0;
@@ -190,7 +192,7 @@ void printfunctionData(BytecodeFile *bFile)
     {
         // declare and intialize values
 
-        unsigned char params[4];
+        // unsigned char params[4];
         unsigned char locals[4];
         unsigned char address[4];
         // print .
