@@ -590,8 +590,6 @@ int main(int argc, char *argv[])
     {
         BytecodeFile *bFile = initBytecodeFileWithFile(argv[1]);
 
-        printf("%d\n", bFile->programCount);
-
         runProgram(bFile->functionData, bFile->programData, bFile->programCount);
     }
     // If we have a file path and that path contains .rec

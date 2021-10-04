@@ -44,8 +44,8 @@ BytecodeFile * initBytecodeFileWithFile(char * filename)
     {
         bFile->programCount += readCount;
         bFile->programCapacity += 1024;
-        bFile->functionData = (unsigned char *)realloc(bFile->functionData, sizeof(unsigned char) * (bFile->functionCapacity + 1));
-        readCount = fread(bFile->programData, sizeof(char), 1024, fd);
+        bFile->programData = (unsigned char *)realloc(bFile->programData, sizeof(unsigned char) * (bFile->programCapacity + 1));
+        readCount = fread(bFile->programData + bFile->programCount, sizeof(char), 1024, fd);
     }
 
     bFile->programCount += readCount;
@@ -181,6 +181,29 @@ void addOpAndInt(BytecodeFile *bFile, unsigned char op, int x)
     addOps(bFile, ops, 5);
 }
 
+void addOpAndLongLong(BytecodeFile *bFile, unsigned char op, long long x)
+{
+    // initialize opcodes
+    unsigned char ops[9];
+
+    // get the bytes representing the int
+    unsigned char *element = longLongToBytes(x);
+
+    // copy the ops
+    ops[0] = op;
+    ops[1] = element[0];
+    ops[2] = element[1];
+    ops[3] = element[2];
+    ops[4] = element[3];
+    ops[5] = element[4];
+    ops[6] = element[5];
+    ops[7] = element[6];
+    ops[8] = element[7];
+
+    // add the ops
+    addOps(bFile, ops, 9);
+}
+
 // prints the function data
 void printfunctionData(BytecodeFile *bFile)
 {
@@ -243,6 +266,8 @@ void printProgramData(BytecodeFile *bFile)
         // declare to int structure
         unsigned char toInt[4];
 
+        unsigned char toLongLong[8];
+
         // prints out the instruction address
         printf("0x%04x ", i - 1);
 
@@ -270,11 +295,15 @@ void printProgramData(BytecodeFile *bFile)
             break;
         case (ICONST):
 
-            toInt[0] = bFile->programData[i++];
-            toInt[1] = bFile->programData[i++];
-            toInt[2] = bFile->programData[i++];
-            toInt[3] = bFile->programData[i++];
-            printf("%s %d\n", LICONST, bytesToInt(toInt));
+            toLongLong[0] = bFile->programData[i++];
+            toLongLong[1] = bFile->programData[i++];
+            toLongLong[2] = bFile->programData[i++];
+            toLongLong[3] = bFile->programData[i++];
+            toLongLong[4] = bFile->programData[i++];
+            toLongLong[5] = bFile->programData[i++];
+            toLongLong[6] = bFile->programData[i++];
+            toLongLong[7] = bFile->programData[i++];
+            printf("%s %lld\n", LICONST, bytesToLongLong(toLongLong));
             break;
         case (SCONST):
             break;

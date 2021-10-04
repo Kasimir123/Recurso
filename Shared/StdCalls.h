@@ -17,4 +17,8 @@ char checkExpressionCharacters(unsigned char * token);
 
 unsigned char * intToBytes(int x);
 
+unsigned char * longLongToBytes(long long x);
+
 int bytesToInt(unsigned char * bytes);
+
+long long bytesToLongLong(unsigned char * bytes);

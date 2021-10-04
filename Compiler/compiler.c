@@ -67,7 +67,7 @@ void nodeToBytecode(char * root, List * locals)
     // currently only supports ints
     else 
     {
-        addOpAndInt(bFile, ICONST, atoi(root));
+        addOpAndLongLong(bFile, ICONST, strtoll(root, 0x0, 10));
     }
 }
 

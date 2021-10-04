@@ -9,12 +9,12 @@ void printStack(int * stack)
     printf("]\n");
 }
 
-int getLocal(Function * func, int local)
+long long getLocal(Function * func, int local)
 {
     return func->locals[func->functionCount - 1][local];
 }
 
-void setLocal(Function * func, int local, int val)
+void setLocal(Function * func, int local, long long val)
 {
     func->locals[func->functionCount - 1][local] = val;
 }
@@ -29,10 +29,10 @@ void incrementFunction(Function * func)
         func->localsCap *= 2;
 
         // Reallocate the list
-        func->locals = (int **)realloc(func->locals, sizeof(int *) * func->localsCap);
+        func->locals = (long long **)realloc(func->locals, sizeof(long long *) * func->localsCap);
 
         for (int i = func->localsCount; i < func->localsCap; i++)
-            func->locals[i] = (int *)malloc(sizeof(int) * 10);
+            func->locals[i] = (long long *)malloc(sizeof(long long) * 10);
     }
 }
 
@@ -93,10 +93,10 @@ Function ** initializeFunctions(unsigned char * funcOps)
         functions[count - 1]->localsCount = 0;
         functions[count - 1]->localsCap = bytesToInt(locals);
         functions[count - 1]->functionCount = ((count - 1 == 0) ? 1 : 0);
-        functions[count - 1]->locals = (int **)malloc(sizeof(int *) * functions[count - 1]->localsCap);
+        functions[count - 1]->locals = (long long **)malloc(sizeof(long long *) * functions[count - 1]->localsCap);
 
         for (int i = 0; i < functions[count - 1]->localsCap; i++)
-            functions[count - 1]->locals[i] = (int *)malloc(sizeof(int) * 10);
+            functions[count - 1]->locals[i] = (long long *)malloc(sizeof(long long) * 20);
 
         count++;
 
@@ -118,7 +118,7 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
     int ip = 0;
     int sp = 0;
     int rp = 0;
-    int stack[10000];
+    long long stack[10000];
     int cf = 0;
 
     int retCap = 64;
@@ -138,8 +138,8 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
         switch (op)
         {
             case (ISUB):;
-                int a = stack[--sp];
-                int b = stack[--sp];
+                long long a = stack[--sp];
+                long long b = stack[--sp];
                 stack[sp++] = a - b;
                 break;
             case (IMUL):
@@ -179,19 +179,24 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
             case (CCONST):
                 break;
             case (ICONST):;
-                unsigned char i[4];
-                i[0] = opCodes[ip++];
-                i[1] = opCodes[ip++];
-                i[2] = opCodes[ip++];
-                i[3] = opCodes[ip++];
+                unsigned char l[8];
+                l[0] = opCodes[ip++];
+                l[1] = opCodes[ip++];
+                l[2] = opCodes[ip++];
+                l[3] = opCodes[ip++];
+                l[4] = opCodes[ip++];
+                l[5] = opCodes[ip++];
+                l[6] = opCodes[ip++];
+                l[7] = opCodes[ip++];
 
-                stack[sp++] = bytesToInt(i);
+                stack[sp++] = bytesToLongLong(l);
                 break;
             case (SCONST):
                 break;
             case (FCONST):
                 break;
-            case (STORE):
+            case (STORE):;
+                unsigned char i[4];
                 i[0] = opCodes[ip++];
                 i[1] = opCodes[ip++];
                 i[2] = opCodes[ip++];
@@ -214,7 +219,7 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
                 cf = retStack[rp]->function;
                 break;
             case (PRINT):
-                printf("%d\n", stack[--sp]);
+                printf("%lld\n", stack[--sp]);
                 break;
             case (POP):
                 break;
@@ -245,13 +250,14 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
                 break;
             case (INPUT):
                 ;
-                int inpt;
-                scanf("%d", &inpt);
+                long long inpt;
+                scanf("%lld", &inpt);
                 stack[sp++] = inpt;
                 break;
             case (CMP):
                 a = stack[--sp];
                 b = stack[--sp];
+                
                 if (a != b)
                 {
                     do {

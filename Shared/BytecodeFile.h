@@ -81,4 +81,5 @@ void addFunction(BytecodeFile * bFile, FunctionNode * function);
 void addOp(BytecodeFile * bFile, unsigned char op);
 void addOps(BytecodeFile * bFile, unsigned char * ops, int size);
 void addOpAndInt(BytecodeFile * bFile, unsigned char op, int x);
+void addOpAndLongLong(BytecodeFile *bFile, unsigned char op, long long x);
 void printAsLong(BytecodeFile * bFile);

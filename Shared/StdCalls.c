@@ -77,9 +77,33 @@ unsigned char * intToBytes(int x)
     return bytes;
 }
 
+unsigned char * longLongToBytes(long long x)
+{
+    unsigned char * bytes = (unsigned char *)malloc(sizeof(unsigned char) * 8);
+    
+    bytes[0] = (x >> 56) & 0xFF;
+    bytes[1] = (x >> 48) & 0xFF;
+    bytes[2] = (x >> 40) & 0xFF;
+    bytes[3] = (x >> 32) & 0xFF;
+    bytes[4] = (x >> 24) & 0xFF;
+    bytes[5] = (x >> 16) & 0xFF;
+    bytes[6] = (x >> 8) & 0xFF;
+    bytes[7] = x & 0xFF;
+
+    return bytes;
+}
+
 // converts bytes to an int
 int bytesToInt(unsigned char * bytes)
 {
     int x = (bytes[0] << 24) + (bytes[1] << 16) + (bytes[2] << 8) + bytes[3];
+    return x;
+}
+
+long long bytesToLongLong(unsigned char * bytes)
+{
+    long long x = ((long long)bytes[0] << 56) + ((long long)bytes[1] << 48) + ((long long)bytes[2] << 40) + ((long long)bytes[3] << 32) + 
+    ((long long)bytes[4] << 24) + ((long long)bytes[5] << 16) + ((long long)bytes[6] << 8) + (long long)bytes[7];
+    
     return x;
 }

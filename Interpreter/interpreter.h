@@ -4,7 +4,7 @@ typedef struct Function
 {
     int startAddress;
 
-    int ** locals;
+    long long ** locals;
 
     int localsCap;
 
