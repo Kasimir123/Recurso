@@ -116,8 +116,6 @@ struct FunctionNode {
 
 enum ExpressionState {Start, First, Root, End};
 
-void printExpressionNode(ExpressionNode * node);
-
 ProgramNode * initProgramNode();
 
 FunctionNode * initFunctionNode(char * name);

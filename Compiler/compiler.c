@@ -217,9 +217,6 @@ void compileBytecode(ProgramNode * programNode, char * save)
         if (i == 0) addOp(bFile, HALT);
     }
 
-    // prints the bytecode file, for debugging
-    // printAsLong(bFile);
-
     if (strcmp(save, "")) saveBytecode(bFile, save); 
 
     // runs the program

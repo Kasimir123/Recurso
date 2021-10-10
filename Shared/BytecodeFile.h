@@ -31,37 +31,6 @@
 #define LTCMP '\x1C'
 #define GTCMP '\x1D'
 
-#define LISUB "ISUB"
-#define LIMUL "IMUL"
-#define LIADD "IADD" 
-#define LFADD "FADD"
-#define LFSUB "FSUB"
-#define LITOF "ITOF"
-#define LIDIV "LDIV"
-#define LFDIV "LFDIV"
-#define LCCONST "CCONST"
-#define LICONST "ICONST"
-#define LSCONST "SCONST"
-#define LFCONST "FCONST"
-#define LSTORE "STORE"
-#define LLOAD "LOAD"
-#define LHALT "HALT"
-#define LRET "RET"
-#define LPRINT "PRINT"
-#define LPOP "POP"
-#define LFUNC "."
-#define LPARAMS "Params="
-#define LLOCALS "Locals="
-#define LCALL "CALL"
-#define LINPUT "INPUT"
-#define LCMP "CMP"
-#define LOR "OR"
-#define LAND "AND"
-#define LXOR "XOR"
-#define LNCMP "NCMP"
-#define LLTCMP "LTCMP"
-#define LGTCMP "GTCMP"
-
 
 
 typedef struct BytecodeFile
@@ -82,4 +51,3 @@ void addOp(BytecodeFile * bFile, unsigned char op);
 void addOps(BytecodeFile * bFile, unsigned char * ops, int size);
 void addOpAndInt(BytecodeFile * bFile, unsigned char op, int x);
 void addOpAndLongLong(BytecodeFile *bFile, unsigned char op, long long x);
-void printAsLong(BytecodeFile * bFile);

@@ -619,37 +619,6 @@ int main(int argc, char *argv[])
         // printf("\nStatements:\n\n");
         parseFunction(program, &curPos);
 
-        // // print things for debugging
-        // printf("\nFunctions:\n\n");
-        // for (int i = 0; i < program->count; i++)
-        // {
-        //     FunctionNode *func = program->nodes[i];
-        //     printf("Name: %s\n", func->name);
-
-        //     if (func->patternMatches->count > 0) printf("\nPattern:\n\n");
-        //     for (int j = 0; j < func->patternMatches->count; j++)
-        //     {
-        //         printf("%s ", func->patternMatches->list[j]);
-        //     }
-        //     printf("\n");
-
-        //     printf("\nNodes:\n\n");
-        //     for (int j = 0; j < func->count; j++)
-        //     {
-        //         printExpressionNode(func->nodes[j]);
-        //         printf("\n");
-        //     }
-        //     printf("\nVariables:\n\n");
-        //     for (int j = 0; j < func->locals->count; j++)
-        //     {
-        //         printf("%s\n", func->locals->list[j]);
-        //     }
-
-        //     printf("\n");
-        // }
-
-        // printf("\nBytecode:\n\n");
-
         // compile the bytecode
         compileBytecode(program, ((argc == 4 && !strcmp(argv[2], "-s") ? argv[3] : (char *)"")));
 
