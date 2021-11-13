@@ -133,6 +133,12 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
         // Gets the current opcode
         unsigned char op = opCodes[ip++];
         //printStack(stack);
+        // printf("Op: %x %x\n", ip - 1, op);
+        // printf("[");
+        // for (int cc = 0; cc < 350; cc++)
+        //     printf("%x, ", opCodes[cc]);
+
+        // printf("]\n");
 
         // switch between all possible opcodes
         switch (op)
@@ -222,6 +228,7 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
                 printf("%lld\n", stack[--sp]);
                 break;
             case (POP):
+                stack[--sp];
                 break;
             case (CALL):
                 i[0] = opCodes[ip++];
@@ -299,6 +306,67 @@ void runProgram(unsigned char * funcOps, unsigned char * opCodes, int length)
                     while (op != RET);
                 }
                 break;
+            case (JMP):
+                
+                i[0] = opCodes[ip++];
+                i[1] = opCodes[ip++];
+                i[2] = opCodes[ip++];
+                i[3] = opCodes[ip++];
+
+                ip = bytesToInt(i);
+                break;
+            case (IJMP):
+                ip = (int)stack[--sp];
+                break;
+            case (INC):
+                i[0] = opCodes[ip++];
+                i[1] = opCodes[ip++];
+                i[2] = opCodes[ip++];
+                i[3] = opCodes[ip++];
+
+                opCodes[bytesToInt(i)] += 1;
+                break;
+            case (DEC):
+                
+                i[0] = opCodes[ip++];
+                i[1] = opCodes[ip++];
+                i[2] = opCodes[ip++];
+                i[3] = opCodes[ip++];
+
+                // printf("Original: %x ", opCodes[bytesToInt(i)]);
+
+                opCodes[bytesToInt(i)] -= 1;
+
+                // printf("After: %x\n", opCodes[bytesToInt(i)]);
+                break;
+            case (MOV):
+
+                a = stack[--sp];
+                b = stack[--sp];
+
+                opCodes[b] = opCodes[a];
+                break;
+            case (MEMP):
+                
+                i[0] = opCodes[ip++];
+                i[1] = opCodes[ip++];
+                i[2] = opCodes[ip++];
+                i[3] = opCodes[ip++];
+
+                stack[sp++] = (opCodes[bytesToInt(i)] << 8) + (opCodes[bytesToInt(i) + 1]);
+                break;
+            case (CMPJMP):
+                
+                i[0] = opCodes[ip++];
+                i[1] = opCodes[ip++];
+                i[2] = opCodes[ip++];
+                i[3] = opCodes[ip++];
+
+                a = stack[--sp];
+                b = stack[--sp];
+
+                if (a == b)
+                    ip = bytesToInt(i);
         }
 
     }
