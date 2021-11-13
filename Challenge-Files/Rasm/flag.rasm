@@ -1,0 +1,192 @@
+    iconst 319
+start:
+    input
+    iconst 265
+    iadd
+    IJMP
+    jmp preMove
+    input
+    store 0
+    jmp moveNums
+preMove:
+    iconst 1000
+    store 0
+moveNums:
+    memp 7
+    memp 7 
+    iconst 7
+    iadd
+    mov
+
+    inc 8
+    memp 7
+    iconst 6
+    iadd
+    memp 7
+    mov
+
+    memp 7
+    memp 7
+    iconst 5
+    iadd
+    mov
+
+    inc 8
+    memp 7
+    iconst 4
+    iadd
+    memp 7
+    mov
+
+    memp 7
+    memp 7
+    iconst 3
+    iadd
+    mov
+
+    inc 8
+    memp 7
+    iconst 2
+    iadd
+    memp 7
+    mov
+
+    memp 7
+    inc 8
+    memp 7
+    mov
+
+    memp 7
+    iconst 3
+    mov
+
+    inc 8
+    inc 8
+    inc 8
+    inc 8
+    inc 8
+
+    inc 8
+    inc 8
+    inc 8
+    inc 8
+    inc 8
+    inc 8
+    inc 8
+    inc 8
+    inc 8
+
+    inc 6
+    memp 5
+    load 0
+    cmpjmp check
+    jmp moveNums
+check:
+    iconst 27438842686565478
+    iconst 4702394921427289928
+    iconst 32465774314482997
+    iconst 5281116304131903312
+    iconst 26858282494943024
+    iconst 5859837686836516696
+    iconst 31023181738562914
+    iconst 6438511605133292597
+    iconst 32142449511969890
+    iconst 3906653021303298909
+    iconst 30781065995444089
+    iconst 3259866344132191012
+    iconst 26797440727536469
+    iconst 2692631589718404927
+    iconst 26801117253299252
+    iconst 3183548224576825122
+    iconst 9343956604446819
+    iconst 0
+    iconst 8200497
+checker:
+
+    memp 2
+    input
+
+    xor
+
+    inc 2
+
+    cmpjmp continue
+    jmp false
+continue:
+
+    pop
+    dec 6
+    memp 5
+    iconst 0
+    cmpjmp fin
+    jmp checker
+fin:
+    iconst 1
+    print
+    jmp trueFin
+false:
+    iconst 0
+    print
+trueFin:
+    halt
+writeLoop:
+    iconst 2199040032789
+    iconst 568
+    store 0
+firstLoop:
+    load 0
+    memp 574
+    mov
+
+
+    dec 568
+    
+    memp 574
+    load 0
+    mov
+
+
+    inc 575
+    iconst 0
+    memp 574
+    cmpjmp secondLoop
+    jmp firstLoop
+secondLoop:
+    load 0
+    memp 572
+    mov
+
+    dec 568
+    
+    memp 572
+    load 0
+    mov
+
+
+    inc 573
+    iconst 256
+    memp 572
+    cmpjmp thirdLoop
+    jmp secondLoop
+thirdLoop:
+    load 0
+    memp 570
+    mov
+
+
+    dec 568
+    
+    memp 570
+    load 0
+    mov
+
+
+    inc 571
+    iconst 568
+    memp 570
+    cmpjmp endLoop
+    jmp thirdLoop
+endLoop:
+    iconst 2
+    print
+    jmp start

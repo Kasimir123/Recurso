@@ -30,6 +30,13 @@
 #define NCMP '\x1B'
 #define LTCMP '\x1C'
 #define GTCMP '\x1D'
+#define JMP '\x1E'
+#define IJMP '\x1F'
+#define INC '\x20'
+#define DEC '\x21'
+#define MOV '\x22'
+#define MEMP '\x23'
+#define CMPJMP '\x24'
 
 
 

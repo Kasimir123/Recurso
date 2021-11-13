@@ -1,0 +1,12 @@
+    input
+    ijmp
+    iconst 5
+    print
+    inc 19
+labellll:
+    INPUT
+    INPUT
+    imul
+    PRINT
+    jmp labellll
+    HALT
