@@ -3,9 +3,50 @@ Recurso Programming Language
 
 Recurso is a stack based interpreted functional programming language I created for K3RN3LCTF. 
 
+## Opcodes
+
+```c
+ISUB        '\x01'
+IMUL        '\x02'
+IADD        '\x03' 
+FADD        '\x04'
+FSUB        '\x05'
+ITOF        '\x06'
+CCONST      '\x07'
+ICONST      '\x08'
+SCONST      '\x09'
+FCONST      '\x0A'
+STORE       '\x0B'
+LOAD        '\x0C'
+HALT        '\x0D'
+RET         '\x0E'
+PRINT       '\x0F'
+POP         '\x10'
+FUNC        '\x11'
+FUNCINFO    '\x12'
+IDIV        '\x13'
+FDIV        '\x14'
+CALL        '\x15'
+INPUT       '\x16'
+CMP         '\x17'
+OR          '\x18'
+AND         '\x19'
+XOR         '\x1A'
+NCMP        '\x1B'
+LTCMP       '\x1C'
+GTCMP       '\x1D'
+JMP         '\x1E'
+IJMP        '\x1F'
+INC         '\x20'
+DEC         '\x21'
+MOV         '\x22'
+MEMP        '\x23'
+CMPJMP      '\x24'
+```
+
 ## Interpreter
 
-## High level opcodes
+### High level opcodes
 
 These are the original opcodes in the Recurso programming language
 
@@ -85,8 +126,12 @@ Pops 2 values off the stack, and compares them to each other, if the 1st value i
 
 Pops 2 values off the stack, and compares them to each other, if the 1st value is greater than the 2nd value then continue till we find a return.
 
+#### HALT
 
-## Assembly opcodes
+Ends the program.
+
+
+### Assembly opcodes
 
 These opcodes were added so that I could do custom assembly with a bit more power
 
@@ -117,3 +162,31 @@ Reads next 4 bytes, then reads the opcode at that location and the next opcode, 
 #### CMPJMP
 
 Reads next 4 bytes, pops 2 values from the stack, if they are equal then set ip to the value of the number we read.
+
+## High Level Syntax
+
+Recurso is a bit strange as it is a cross between several programming languages. You can script like python, but with c like syntax. However, there are no loops and no conditional statements in the high level code.
+
+As a functional programming language, all functions are mathematically pure, any values passed into a function will not be changed outside of the function.
+
+### Main function
+
+Any code written outside of a function is automatically considered part of the main function. 
+
+### Pattern Matching
+
+Recurso uses pattern matching rather than if statements, the way that it works is by comparing the function parameters against the values in the pattern. If the pattern matches it returns the end value, otherwise it continues to the function. This can be used to create base cases for recursive functions.
+
+```
+int factorial(int x)
+| 1, 1 |
+{
+    int a = x - 1;
+    int b = factorial(a);
+    
+    return x * b;
+}
+```
+
+For the example above, if x is equal to 1 we return 1, otherwise we go to the function.
+
