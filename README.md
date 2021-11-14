@@ -190,3 +190,32 @@ int factorial(int x)
 
 For the example above, if x is equal to 1 we return 1, otherwise we go to the function.
 
+## Project Structure
+
+### Assembler
+
+Contains a python file that assembles recurso assembly code into a .recc file.
+
+### Challenge Files
+
+Contains files that were distributed as well as source code and testing code.
+
+### Compiler
+
+Contains the recurso compiler. The compiler gets passed the AST from the parser and compiles it down into recurso bytecode.
+
+### Interpreter
+
+Contains the recurso interpreter. The interpreter receives the compiled bytecode and runs it in a simulated system.
+
+### Parser
+
+Contains the recurso parser. This parses the high level recurso source code and converts it into an AST representation of the file.
+
+### Shared
+
+Contains shared files for the different recurso components. This includes the list, standard calls, abstract syntax tree representation, and the bytecode definitions.
+
+### Test Files
+
+Contains the test files I used while writing the program.
