@@ -1,36 +1,119 @@
 # Recurso
 Recurso Programming Language
 
-Wiki is disabled on private repo so need to use readme for now :/
+Recurso is a stack based interpreted functional programming language I created for K3RN3LCTF. 
 
-## High Level Language Parser
+## Interpreter
 
-This component will read in the high level programming language and fill in an internal data structure that is representative of the program. This datastructure will then be passed to the Bytecode Compiler.
+## High level opcodes
 
-### High Level Language Reader
+These are the original opcodes in the Recurso programming language
 
-Reads in the code.
+#### ISUB
 
-### Intermediate Representation Generation
+Pops the stack twice, subtracts 2nd item on stack from the 1st item on the stack, then pushes them back onto the stack.
 
-Generates the data structure.
+#### IMUL
 
-## Bytecode Compiler
+Pops the stack twice, multiplies the two values and pushes them onto the stack.
 
-This component will take the internal data structure that we generated and write our own bytecode, this will then either output it as a file or it will send it to the interpreter.
+#### IDIV 
 
-### Bytecode Generator/Translator
+Pops the stack twice, divides 2nd item on stack from the 1st item on the stack, then pushes them back onto the stack.
 
-Takes the data structure and creates the bytecode.
+#### IADD
 
-## Bytecode Interpreter
+Pops the stack twice, adds the two values and pushes them onto the stack.
 
-This component will read in the bytecode and then run it, since this will practically be a virtual machine the bytecode can then be run on any machine we have set up the interpreter for.
+#### OR
 
-### Bytecode Reader
+Pops the stack twice, ors the two values and pushes them onto the stack.
 
-Reads in the bytecode.
+#### AND
 
-### Interpreter (VM Implementation)
+Pops the stack twice, ands the two values and pushes them onto the stack.
 
-Interprets the bytecode, most likely a stack-based bytecode interpreter. will need to decide what to cnvert the bytecode into.
+#### XOR
+
+Pops the stack twice, xors the two values and pushes them onto the stack.
+
+#### ICONST
+
+Reads the next 8 bytes, converts them to long long, and pushes them onto the stack.
+
+#### STORE
+
+Reads the next 4 bytes, converts them to an int, then pops the stack and stores the value from the stack into the corresponding local variable.
+
+#### LOAD
+
+Reads the next 4 bytes, converts them to an int, then uses that int to get the local variable and pushes to the stack.
+
+#### RET
+
+Calls decrement function to get the last function on the call stack, sets ip to the address and current function to the function.
+
+#### PRINT
+
+Pops the stack and prints out the number.
+
+#### POP
+
+Pops a value from the stack and discards it.
+
+#### CALL
+
+Reads the next 4 bytes, converts to an int, and uses that to call the selected function. Sets the address of the return stack to the current ip.
+
+#### INPUT
+
+Reads in a long long and pushes to the stack.
+
+#### CMP
+
+Pops 2 values off the stack, and checks if they are equal to each other, if they are not equal then continue till we find a return.
+
+#### NCMP
+
+Pops 2 values off the stack, and checks if they are equal to each other, if they are equal then continue till we find a return.
+
+#### LTCMP
+
+Pops 2 values off the stack, and compares them to each other, if the 1st value is less than the 2nd value then continue till we find a return.
+
+#### GTCMP
+
+Pops 2 values off the stack, and compares them to each other, if the 1st value is greater than the 2nd value then continue till we find a return.
+
+
+## Assembly opcodes
+
+These opcodes were added so that I could do custom assembly with a bit more power
+
+#### JMP
+
+Reads next 4 bytes, converts to int, and sets ip to that value.
+
+#### IJMP
+
+Pops stack and sets ip to that value.
+
+#### INC
+
+Reads next 4 bytes, converts to int, and increases the value of the opcode at that location.
+
+#### DEC
+
+Reads next 4 bytes, converts to int, and decreases the value of the opcode at that location.
+
+#### MOV
+
+Pops 2 values from the stack and sets the opcode at the 2nd location with the one from the 1st location.
+
+#### MEMP
+
+Reads next 4 bytes, then reads the opcode at that location and the next opcode, converts them to an integer, and pushes to the stack.
+
+#### CMPJMP
+
+Reads next 4 bytes, pops 2 values from the stack, if they are equal then set ip to the value of the number we read.
